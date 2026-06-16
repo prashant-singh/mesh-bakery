@@ -18,6 +18,7 @@ type Product = {
   tags: string[];
   price: number;
   size: string;
+  shortDescription: string;
   description: string;
 };
 
@@ -72,6 +73,12 @@ export default function Page() {
   const isGif = (url: string) => /\.gif(\?|#|$)/i.test(url);
   const isVideo = (media: Media) => media.type === 'video';
   const isVisualImage = (media: Media) => media.type === 'image' || isGif(media.url);
+  const formatInr = (value: number) =>
+    new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0,
+    }).format(value);
   const playVideo = (key: string) => {
     const video = videoRefs.current[key];
     if (!video) return;
@@ -87,15 +94,15 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans selection:bg-[#ff6b35]/20">
-      <header className="px-6 md:px-12 py-8 grid grid-cols-3 items-center">
+    <div className="min-h-screen flex flex-col bg-[#faf8f5] font-sans selection:bg-[#ff6b35]/20">
+      <header className="px-6 md:px-12 py-6 md:py-8 grid grid-cols-3 items-center">
         <div />
 
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-2 md:gap-3">
           <div className="w-8 h-8 bg-[#ff6b35] rounded-full flex items-center justify-center shrink-0">
             <div className="w-3 h-3 bg-white rounded-sm rotate-12" />
           </div>
-          <span className="text-[clamp(1rem,4vw,1.25rem)] font-bold tracking-tight text-[#2d2a26] whitespace-nowrap">
+          <span className="text-[clamp(1rem,4vw,1.25rem)] font-serif font-light tracking-[0.02em] text-[#2d2a26] whitespace-nowrap">
             mesh bakery
           </span>
         </div>
@@ -104,7 +111,7 @@ export default function Page() {
       </header>
 
       <main className="flex-1">
-        <section className="px-6 md:px-12 pt-12 pb-12 max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-12 relative overflow-hidden md:overflow-visible">
+        <section className="px-6 md:px-12 pt-8 md:pt-12 pb-12 max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-8 md:gap-12 relative overflow-hidden md:overflow-visible">
           <div className="absolute top-0 right-10 w-[400px] h-[400px] bg-[#e9e4db]/40 rounded-full blur-3xl -z-10" />
           <div className="max-w-md z-10">
             <h1 className="text-4xl md:text-3xl font-serif font-light text-[#2d2a26] mb-6 leading-[1.1]">
@@ -128,8 +135,8 @@ export default function Page() {
           </div>
         </section>
 
-        <section className="sticky top-0 z-30 md:hidden bg-[#faf8f5]/85 backdrop-blur-md">
-          <div className="max-w-6xl mx-auto px-6 py-3">
+        <section className="sticky top-0 z-30 md:hidden bg-[#faf8f5]">
+          <div className="max-w-6xl mx-auto px-6 py-4">
             <div className="flex flex-wrap gap-2">
               {categories.map(cat => (
                 <button
@@ -144,7 +151,7 @@ export default function Page() {
           </div>
         </section>
 
-        <section className="max-w-6xl mx-auto px-6 md:px-12 pb-24">
+        <section className="max-w-6xl mx-auto px-6 md:px-12 pb-24 pt-4 md:pt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-7">
             {filtered.map((item, idx) => {
               const bgs = [
@@ -170,9 +177,9 @@ export default function Page() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.15, delay: idx * 0.025 }}
                   onClick={() => setSelectedProduct(item)}
-                  className={`group flex flex-col rounded-[18px] overflow-hidden min-h-[390px] cursor-pointer transition-shadow duration-150 hover:shadow-[0_14px_36px_rgba(45,42,38,0.12)] hover:-translate-y-0.5 ${bgClass}`}
+                  className={`group flex flex-col rounded-[18px] overflow-hidden min-h-[380px] cursor-pointer transition-shadow duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:shadow-[0_14px_36px_rgba(45,42,38,0.12)] ${bgClass}`}
                 >
-                  <div className="relative h-[70%] min-h-[260px]">
+                  <div className="relative h-[80%] min-h-[300px]">
                     <div className="relative h-full w-full overflow-hidden bg-[#f8f4ee]">
                       {activeMedia ? (
                         isVideo(activeMedia) ? (
@@ -271,26 +278,14 @@ export default function Page() {
                     )}
                   </div>
 
-                  <div className="z-10 flex flex-col gap-2 p-4 pt-3 flex-1">
-                    <div className="relative">
-                      <h3 className="text-xl font-medium mb-1 leading-tight line-clamp-2">{item.name}</h3>
-                      <p className={`text-sm ${isDark ? 'opacity-70' : 'opacity-50'}`}>{item.category}</p>
-                    </div>
-
-                    {item.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {item.tags.map(tag => (
-                          <span
-                            key={tag}
-                            className={`px-2.5 py-1 text-[10px] font-bold tracking-widest rounded-full ${isDark ? 'bg-white/20 text-white' : 'bg-white/60 text-[#2d2a26]'}`}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    <div className="mt-auto h-1" />
+                  <div className="z-10 flex min-h-[84px] flex-col gap-1 px-4 pt-3 pb-4 overflow-hidden bg-[#f0ebe3] text-[#3d3a36] bg-clip-padding">
+                    <h3 className="text-xl font-serif font-light leading-snug line-clamp-1">{item.name}</h3>
+                    <p className="text-sm leading-snug line-clamp-1 opacity-65 mt-0.5">
+                      {item.shortDescription}
+                    </p>
+                    <p className="text-lg font-bold leading-none text-[#ff6b35] mt-2">
+                      {formatInr(item.price)}
+                    </p>
                   </div>
                 </motion.div>
               );
@@ -311,7 +306,7 @@ export default function Page() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#faf8f5]/90 backdrop-blur-sm flex items-stretch justify-center p-0 md:p-8 overflow-hidden"
+            className="fixed inset-0 z-50 bg-[#faf8f5]/90 backdrop-blur-sm flex items-stretch justify-center md:items-center p-0 md:p-8 overflow-hidden"
             onClick={() => setSelectedProduct(null)}
           >
             <button
@@ -326,7 +321,7 @@ export default function Page() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ delay: 0.04, duration: 0.18 }}
-              className="w-full h-[100dvh] md:h-auto md:max-h-[92dvh] md:max-w-6xl bg-[#faf8f5] rounded-none md:rounded-[32px] overflow-hidden shadow-2xl border border-black/5 grid grid-rows-[minmax(240px,42vh)_1fr] md:grid-rows-none md:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)] min-h-0"
+              className="w-full h-[100dvh] md:h-auto md:max-h-[60dvh] md:max-w-6xl md:self-center bg-[#faf8f5] rounded-none md:rounded-[32px] overflow-hidden shadow-2xl border border-black/5 grid grid-rows-[minmax(240px,42vh)_1fr] md:grid-rows-none md:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)] min-h-0"
               onClick={(event) => event.stopPropagation()}
             >
               <div className="p-4 sm:p-5 md:p-6 bg-[#f3eee6] flex flex-col gap-4 min-h-0">
@@ -389,56 +384,56 @@ export default function Page() {
                     const detailMedia = selectedProduct.media.filter(media => isVisualImage(media) || isVideo(media));
                     return detailMedia.length > 1;
                   })() && (
-                    <>
-                      <div className="absolute inset-x-0 bottom-3 flex items-center justify-between gap-3 px-3">
-                        <button
-                          type="button"
-                          aria-label={`previous media for ${selectedProduct.name}`}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            const detailMedia = selectedProduct.media.filter(media => isVisualImage(media) || isVideo(media));
-                            setCardMediaIndices(current => ({
-                              ...current,
-                              [selectedProduct.id]: ((current[selectedProduct.id] ?? 0) - 1 + detailMedia.length) % detailMedia.length,
-                            }));
-                          }}
-                          className="h-9 w-9 rounded-full bg-white/90 text-[#2d2a26] flex items-center justify-center border border-black/5 hover:bg-white transition-colors duration-150 shrink-0"
-                        >
-                          <ChevronLeft className="h-4 w-4" />
-                        </button>
+                      <>
+                        <div className="absolute inset-x-0 bottom-3 flex items-center justify-between gap-3 px-3">
+                          <button
+                            type="button"
+                            aria-label={`previous media for ${selectedProduct.name}`}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              const detailMedia = selectedProduct.media.filter(media => isVisualImage(media) || isVideo(media));
+                              setCardMediaIndices(current => ({
+                                ...current,
+                                [selectedProduct.id]: ((current[selectedProduct.id] ?? 0) - 1 + detailMedia.length) % detailMedia.length,
+                              }));
+                            }}
+                            className="h-9 w-9 rounded-full bg-white/90 text-[#2d2a26] flex items-center justify-center border border-black/5 hover:bg-white transition-colors duration-150 shrink-0"
+                          >
+                            <ChevronLeft className="h-4 w-4" />
+                          </button>
 
-                        <div className="relative flex-1 h-4">
-                          <div className="absolute left-1/2 -translate-x-1/2 inline-flex items-center justify-center gap-1.5 rounded-full bg-black/15 backdrop-blur px-2 py-1 w-fit pointer-events-none">
-                            {selectedProduct.media.filter(media => isVisualImage(media) || isVideo(media)).map((_, mediaIndex) => {
-                              const activeDetailMediaIndex = cardMediaIndices[selectedProduct.id] ?? 0;
-                              return (
-                                <span
-                                  key={mediaIndex}
-                                  className={`h-1.5 rounded-full transition-all ${mediaIndex === activeDetailMediaIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`}
-                                />
-                              );
-                            })}
+                          <div className="relative flex-1 h-4">
+                            <div className="absolute left-1/2 -translate-x-1/2 inline-flex items-center justify-center gap-1.5 rounded-full bg-black/15 backdrop-blur px-2 py-1 w-fit pointer-events-none">
+                              {selectedProduct.media.filter(media => isVisualImage(media) || isVideo(media)).map((_, mediaIndex) => {
+                                const activeDetailMediaIndex = cardMediaIndices[selectedProduct.id] ?? 0;
+                                return (
+                                  <span
+                                    key={mediaIndex}
+                                    className={`h-1.5 rounded-full transition-all ${mediaIndex === activeDetailMediaIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`}
+                                  />
+                                );
+                              })}
+                            </div>
                           </div>
-                        </div>
 
-                        <button
-                          type="button"
-                          aria-label={`next media for ${selectedProduct.name}`}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            const detailMedia = selectedProduct.media.filter(media => isVisualImage(media) || isVideo(media));
-                            setCardMediaIndices(current => ({
-                              ...current,
-                              [selectedProduct.id]: ((current[selectedProduct.id] ?? 0) + 1) % detailMedia.length,
-                            }));
-                          }}
-                          className="h-9 w-9 rounded-full bg-white/90 text-[#2d2a26] flex items-center justify-center border border-black/5 hover:bg-white transition-colors duration-150 shrink-0"
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </>
-                  )}
+                          <button
+                            type="button"
+                            aria-label={`next media for ${selectedProduct.name}`}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              const detailMedia = selectedProduct.media.filter(media => isVisualImage(media) || isVideo(media));
+                              setCardMediaIndices(current => ({
+                                ...current,
+                                [selectedProduct.id]: ((current[selectedProduct.id] ?? 0) + 1) % detailMedia.length,
+                              }));
+                            }}
+                            className="h-9 w-9 rounded-full bg-white/90 text-[#2d2a26] flex items-center justify-center border border-black/5 hover:bg-white transition-colors duration-150 shrink-0"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </>
+                    )}
                 </div>
 
               </div>
@@ -451,23 +446,16 @@ export default function Page() {
                 className="w-full overflow-y-auto overscroll-contain min-h-0 px-6 py-6 md:px-8 md:py-8 flex flex-col bg-[#faf8f5]"
               >
                 <div className="max-w-md mx-auto w-full">
-                  <div className="flex gap-3 mb-5 flex-wrap">
-                    {selectedProduct.tags.map(tag => (
-                      <span key={tag} className="px-3 py-1 bg-[#2d2a26] text-[#faf8f5] text-[10px] font-bold tracking-widest rounded-full">
-                        {tag}
-                      </span>
-                    ))}
-                    <span className="px-3 py-1 bg-[#d8d0c5] text-[#3d3a36] text-[10px] font-bold tracking-widest rounded-full">
-                      {selectedProduct.category}
-                    </span>
+                  <div className="mb-3">
+                    <span className="text-[10px] font-bold tracking-widest uppercase opacity-50">{selectedProduct.category}</span>
                   </div>
 
                   <h2 className="text-3xl md:text-5xl font-serif font-light text-[#2d2a26] mb-3 leading-tight">
                     {selectedProduct.name}
                   </h2>
 
-                  <div className="font-mono text-lg md:text-xl mb-5">
-                    ${selectedProduct.price.toFixed(2)}
+                  <div className="font-mono text-lg md:text-xl mb-5 text-[#ff6b35]">
+                    {formatInr(selectedProduct.price)}
                   </div>
 
                   <p className="text-base text-[#3d3a36] opacity-80 leading-relaxed mb-6">

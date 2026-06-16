@@ -10,6 +10,7 @@
     "tags": ["new"],
     "price": 24.00,
     "size": "10cm x 5cm x 5cm",
+    "shortDescription": "tiny desk companion for long work sessions.",
     "description": "a tiny companion for your desk to keep you company during long work hours. printed in eco-friendly plant-based polymer."
   },
   {
@@ -23,6 +24,7 @@
     "tags": [],
     "price": 18.50,
     "size": "8cm x 12cm x 4cm",
+    "shortDescription": "soft cloud-shaped catchall for everyday bits.",
     "description": "a soft, rounded cloud to hold your memories, keys, or loose change. a delightful addition to any entryway."
   },
   {
@@ -35,6 +37,7 @@
     "tags": ["popular"],
     "price": 32.00,
     "size": "1:28 scale",
+    "shortDescription": "detailed tabletop knight for display or play.",
     "description": "a highly detailed miniature knight figure, perfect for tabletop games or display. features intricate armor designs."
   },
   {
@@ -48,6 +51,7 @@
     "tags": [],
     "price": 28.00,
     "size": "10cm diameter (set of 4)",
+    "shortDescription": "stackable pebble-inspired coasters for any table.",
     "description": "a set of 4 stackable coasters inspired by river pebbles. protects your surfaces while adding a touch of nature to your home."
   },
   {
@@ -60,6 +64,7 @@
     "tags": [],
     "price": 22.00,
     "size": "12cm x 8cm x 10cm",
+    "shortDescription": "a friend-shaped dino that fits perfectly in hand.",
     "description": "a friend-shaped dinosaur toy that fits perfectly in your hand. features a smooth, satisfying texture."
   },
   {
@@ -72,6 +77,7 @@
     "tags": ["restocked"],
     "price": 21.00,
     "size": "8cm x 8cm x 9cm",
+    "shortDescription": "matcha-cup pen stand for a fresher desk.",
     "description": "a pen stand resembling a classic matcha cup. keeps your writing utensils organized and your desk looking fresh."
   }
 ]
