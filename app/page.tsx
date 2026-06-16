@@ -114,10 +114,22 @@ export default function Page() {
               small-batch curiosities for shelves, desks, and adventures.
             </p>
           </div>
+
+          <div className="hidden md:flex flex-wrap gap-2 z-10">
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setFilter(cat)}
+                className={`px-4 py-2 rounded-full text-xs font-bold tracking-widest transition-colors duration-150 ${filter === cat ? 'bg-[#2d2a26] text-[#faf8f5]' : 'bg-[#e9e4db] text-[#2d2a26] hover:bg-[#d8d0c5]'}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </section>
 
-        <section className="sticky top-0 z-30 bg-[#faf8f5]/85 backdrop-blur-md border-y border-[#e9e4db]/50">
-          <div className="max-w-6xl mx-auto px-6 md:px-12 py-3">
+        <section className="sticky top-0 z-30 md:hidden bg-[#faf8f5]/85 backdrop-blur-md">
+          <div className="max-w-6xl mx-auto px-6 py-3">
             <div className="flex flex-wrap gap-2">
               {categories.map(cat => (
                 <button
@@ -158,7 +170,7 @@ export default function Page() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.15, delay: idx * 0.025 }}
                   onClick={() => setSelectedProduct(item)}
-                  className={`group flex flex-col rounded-[18px] overflow-hidden min-h-[390px] cursor-pointer ${bgClass}`}
+                  className={`group flex flex-col rounded-[18px] overflow-hidden min-h-[390px] cursor-pointer transition-shadow duration-150 hover:shadow-[0_14px_36px_rgba(45,42,38,0.12)] hover:-translate-y-0.5 ${bgClass}`}
                 >
                   <div className="relative h-[70%] min-h-[260px]">
                     <div className="relative h-full w-full overflow-hidden bg-[#f8f4ee]">

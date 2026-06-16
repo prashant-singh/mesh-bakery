@@ -4,6 +4,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'mesh bakery | catalogue',
   description: 'catalogue of freshly baked 3D prints',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
