@@ -1,0 +1,6 @@
+{
+  "name": "mesh bakery",
+  "description": "an ultra simple catalogue of 3d printed objects.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
