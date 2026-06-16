@@ -58,29 +58,30 @@ export default function Page() {
 
   return (
     <div className="min-h-screen flex flex-col font-sans selection:bg-[#ff6b35]/20">
-      <header className="px-6 md:px-12 py-8 flex justify-between items-center">
-        <div className="flex items-center gap-3">
+      <header className="px-6 md:px-12 py-8 grid grid-cols-3 items-center">
+        <div />
+
+        <div className="flex items-center justify-center gap-3">
           <div className="w-8 h-8 bg-[#ff6b35] rounded-full flex items-center justify-center shrink-0">
             <div className="w-3 h-3 bg-white rounded-sm rotate-12" />
           </div>
-          <span className="text-xl font-bold tracking-tight text-[#2d2a26]">mesh bakery</span>
+          <span className="text-xl font-bold tracking-tight text-[#2d2a26]">
+            mesh bakery
+          </span>
         </div>
-        <nav className="flex gap-8 text-xs font-bold tracking-widest opacity-80 text-[#3d3a36]">
-          <a href="#" className="hover:opacity-60 transition-opacity">index</a>
-          <a href="#" className="hover:opacity-60 transition-opacity">info</a>
-        </nav>
+
+        <div />
       </header>
 
       <main className="flex-1">
         <section className="px-6 md:px-12 pt-12 pb-20 max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-12 relative overflow-hidden md:overflow-visible">
           <div className="absolute top-0 right-10 w-[400px] h-[400px] bg-[#e9e4db]/40 rounded-full blur-3xl -z-10" />
           <div className="max-w-md z-10">
-            <h1 className="text-4xl md:text-5xl font-serif font-light text-[#2d2a26] mb-6 leading-[1.1]">
-              freshly baked 3d prints.<br />
-              <span className="text-[#5b6346] italic">for your desk.</span>
+            <h1 className="text-4xl md:text-3xl font-serif font-light text-[#2d2a26] mb-6 leading-[1.1]">
+              freshly baked <span className="text-[#5b6346] italic whitespace-nowrap">prints.</span>
             </h1>
-            <p className="text-[#3d3a36] opacity-60 text-sm leading-relaxed">
-              a catalogue of whimsical playthings and quiet companions. small batches only.
+            <p className="text-[#3d3a36] opacity-60 text-l leading-relaxed">
+              small-batch curiosities for shelves, desks, and adventures.
             </p>
           </div>
 
