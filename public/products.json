@@ -1,83 +1,80 @@
 [
   {
     "id": "mb-01",
-    "name": "desk sprout",
-    "category": "toy",
+    "name": "Pokeball",
+    "category": "keychains",
     "media": [
-      { "type": "image", "url": "https://picsum.photos/seed/sprout5/800/800" },
-      { "type": "image", "url": "https://picsum.photos/seed/sprout5_alt/800/800" }
+      { "type": "image", "url": "/products/keychains/pokeball_keychain.png" }
     ],
     "tags": ["new"],
-    "price": 24.00,
+    "price": 79.00,
     "size": "10cm x 5cm x 5cm",
-    "shortDescription": "tiny desk companion for long work sessions.",
-    "description": "a tiny companion for your desk to keep you company during long work hours. printed in eco-friendly plant-based polymer."
+    "shortDescription": "Iconic red-and-white Poké Ball keychain to secure your keys with nostalgic style.",
+    "description": "Bring the Pokémon universe to your daily routine with this premium, screen-accurate Poké Ball keychain. Built from durable materials to withstand daily wear, it securely attaches to your keys or backpack, making it the perfect functional collectible for fans of all generations."
   },
   {
     "id": "mb-02",
-    "name": "cloud keeper",
-    "category": "daily object",
+    "name": "Onepiece Skull",
+    "category": "keychains",
     "media": [
-      { "type": "image", "url": "https://picsum.photos/seed/cloud7/800/800" },
-      { "type": "video", "url": "https://www.w3schools.com/html/mov_bbb.mp4" }
+      { "type": "image", "url": "/products/keychains/OnePiece_01.png" }
     ],
     "tags": [],
-    "price": 18.50,
+    "price": 79.00,
     "size": "8cm x 12cm x 4cm",
-    "shortDescription": "soft cloud-shaped catchall for everyday bits.",
-    "description": "a soft, rounded cloud to hold your memories, keys, or loose change. a delightful addition to any entryway."
+    "shortDescription": "Showcase your pirate pride with this iconic Straw Hat skull keychain.",
+    "description": "Carry the spirit of adventure with this premium One Piece Jolly Roger keychain. Featuring Luffy’s iconic straw hat skull design, this durable accessory easily clips to your keys or backpack—making it the ultimate daily collectible for every anime fan."
   },
   {
     "id": "mb-03",
-    "name": "knight errant",
-    "category": "miniature",
+    "name": "Onepiece Monkey D. Luffy",
+    "category": "keychains",
     "media": [
-      { "type": "image", "url": "https://picsum.photos/seed/knight9/800/800" }
+      { "type": "image", "url": "/products/keychains/OnePiece_02.png" }
     ],
     "tags": ["popular"],
-    "price": 32.00,
+    "price": 79.00,
     "size": "1:28 scale",
-    "shortDescription": "detailed tabletop knight for display or play.",
-    "description": "a highly detailed miniature knight figure, perfect for tabletop games or display. features intricate armor designs."
+    "shortDescription": "Show off your inner pirate with this iconic Monkey D. Luffy head keychain.",
+    "description": "Carry the future Pirate King everywhere with this premium One Piece Luffy head keychain. Featuring his signature smile and iconic straw hat, the durable accessory securely clips to your daily gear—making it the ultimate collectible for any anime fan."
   },
   {
     "id": "mb-04",
-    "name": "pebble coaster set",
-    "category": "home",
+    "name": "Orange Fox Eyes Open",
+    "category": "keychains",
     "media": [
-      { "type": "image", "url": "https://picsum.photos/seed/pebble3/800/800" },
-      { "type": "image", "url": "https://picsum.photos/seed/pebble3_alt/800/800" }
+      { "type": "image", "url": "/products/keychains/OrangeFox_EyesOpen.png" }
     ],
     "tags": [],
-    "price": 28.00,
+    "price": 79.00,
     "size": "10cm diameter (set of 4)",
-    "shortDescription": "stackable pebble-inspired coasters for any table.",
-    "description": "a set of 4 stackable coasters inspired by river pebbles. protects your surfaces while adding a touch of nature to your home."
+    "shortDescription": "Fidget on the go with this cute, flexible 3D-printed fox keychain.",
+    "description": "Add a playful touch to your daily gear with this articulated 3D-printed fox keychain. Featuring a flexible, wiggly body and a cute orange design, it doubles as a fun fidget toy while keeping your keys securely together."
   },
   {
     "id": "mb-05",
-    "name": "chubby dino",
-    "category": "toy",
+    "name": "Crocodile",
+    "category": "keychains",
     "media": [
-      { "type": "image", "url": "https://picsum.photos/seed/dino6/800/800" }
+      { "type": "image", "url": "/products/keychains/Crocodile.png" }
     ],
     "tags": [],
-    "price": 22.00,
+    "price": 79.00,
     "size": "12cm x 8cm x 10cm",
-    "shortDescription": "a friend-shaped dino that fits perfectly in hand.",
-    "description": "a friend-shaped dinosaur toy that fits perfectly in your hand. features a smooth, satisfying texture."
+    "shortDescription": "A group of cute, green, 3D-printed articulated crocodile keychains.",
+    "description": "Four playful, cartoon-style green crocodile keychains with big eyes are arranged on a dark wooden table. They feature a 3D-printed texture, yellow undersides, and flexible, segmented bodies."
   },
   {
     "id": "mb-06",
-    "name": "matcha pen stand",
-    "category": "daily object",
+    "name": "Toothless",
+    "category": "keychains",
     "media": [
-      { "type": "image", "url": "https://picsum.photos/seed/matcha5/800/800" }
+      { "type": "image", "url": "/products/keychains/NightFury_02.png" }
     ],
     "tags": ["restocked"],
-    "price": 21.00,
+    "price": 79.00,
     "size": "8cm x 8cm x 9cm",
-    "shortDescription": "matcha-cup pen stand for a fresher desk.",
-    "description": "a pen stand resembling a classic matcha cup. keeps your writing utensils organized and your desk looking fresh."
+    "shortDescription": "A sleek, matte black 3D-printed articulated Toothless dragon keychain.",
+    "description": "This cute Toothless dragon keychain features a fully flexible, 3D-printed segmented body in a deep black finish, complete with expressive green eyes and detailed tiny wings."
   }
 ]

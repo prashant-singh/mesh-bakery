@@ -66,7 +66,7 @@ export default function Page() {
     ? catalogue
     : catalogue.filter(item => item.category === filter);
 
-  const categories = ['all', 'toy', 'daily object', 'miniature', 'home'];
+  const categories = ['all', 'keychains', 'desk toys', 'bookmarks', 'superheroes'];
   const whatsappHref = (productName: string, productId: string) =>
     `https://wa.me/918460582729?text=${encodeURIComponent(`hi mesh bakery, i'd like to order the ${productName} (${productId}).`)}`;
   const instagramHref = 'https://www.instagram.com/meshbakeryprints/';
