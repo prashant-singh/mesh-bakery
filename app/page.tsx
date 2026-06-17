@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { ChevronLeft, ChevronRight, Instagram, MessageCircle, Play, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Instagram, MessageCircle, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 
 type Media = {
@@ -29,6 +29,7 @@ export default function Page() {
   const [cardMediaIndices, setCardMediaIndices] = useState<Record<string, number>>({});
   const [playingVideos, setPlayingVideos] = useState<Record<string, boolean>>({});
   const videoRefs = React.useRef<Record<string, HTMLVideoElement | null>>({});
+  const cardSwipeState = React.useRef<Record<string, { startX: number; startY: number; swiped: boolean; pointerId: number | null }>>({});
 
   React.useEffect(() => {
     fetch('/products.json?v=' + Date.now())
@@ -94,7 +95,7 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf8f5] font-sans selection:bg-[#ff6b35]/20">
+    <div className="min-h-screen flex flex-col bg-[#fbf7f2] font-sans selection:bg-[#ff6b35]/20">
       <header className="px-6 md:px-12 py-6 md:py-8 grid grid-cols-3 items-center">
         <div />
 
@@ -135,7 +136,7 @@ export default function Page() {
           </div>
         </section>
 
-        <section className="sticky top-0 z-30 md:hidden bg-[#faf8f5]">
+        <section className="sticky top-0 z-30 md:hidden bg-[#fbf7f2]">
           <div className="max-w-6xl mx-auto px-6 py-4">
             <div className="flex flex-wrap gap-2">
               {categories.map(cat => (
@@ -152,7 +153,7 @@ export default function Page() {
         </section>
 
         <section className="max-w-6xl mx-auto px-6 md:px-12 pb-24 pt-4 md:pt-0">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-7">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-7 lg:gap-x-7 lg:gap-y-8">
             {filtered.map((item, idx) => {
               const bgs = [
                 'bg-[#f0ebe3] text-[#3d3a36]',
@@ -163,7 +164,6 @@ export default function Page() {
                 'bg-[#d8d0c5] text-[#3d3a36]',
               ];
               const bgClass = bgs[idx % bgs.length];
-              const isDark = bgClass.includes('text-white') || bgClass.includes('text-[#faf8f5]');
               const mediaItems = item.media.filter(media => isVisualImage(media) || isVideo(media));
               const activeMediaIndex = cardMediaIndices[item.id] ?? 0;
               const activeMedia = mediaItems[activeMediaIndex % Math.max(mediaItems.length, 1)] ?? mediaItems[0];
@@ -176,11 +176,50 @@ export default function Page() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.15, delay: idx * 0.025 }}
-                  onClick={() => setSelectedProduct(item)}
-                  className={`group flex flex-col rounded-[18px] overflow-hidden min-h-[380px] cursor-pointer transition-shadow duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:shadow-[0_14px_36px_rgba(45,42,38,0.12)] ${bgClass}`}
+                  onPointerDown={(event) => {
+                    if (!canCarousel) return;
+                    cardSwipeState.current[item.id] = {
+                      startX: event.clientX,
+                      startY: event.clientY,
+                      swiped: false,
+                      pointerId: event.pointerId,
+                    };
+                  }}
+                  onPointerUp={(event) => {
+                    if (!canCarousel) return;
+                    const state = cardSwipeState.current[item.id];
+                    if (!state || state.pointerId !== event.pointerId) return;
+                    const deltaX = event.clientX - state.startX;
+                    const deltaY = event.clientY - state.startY;
+                    const isHorizontalSwipe = Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY);
+
+                    if (isHorizontalSwipe) {
+                      event.preventDefault();
+                      setCardMediaIndices((current) => ({
+                        ...current,
+                        [item.id]: deltaX < 0
+                          ? (activeMediaIndex + 1) % mediaItems.length
+                          : (activeMediaIndex - 1 + mediaItems.length) % mediaItems.length,
+                      }));
+                      cardSwipeState.current[item.id] = { ...state, swiped: true };
+                    }
+                  }}
+                  onPointerCancel={() => {
+                    if (!canCarousel) return;
+                    delete cardSwipeState.current[item.id];
+                  }}
+                  onClick={() => {
+                    if (cardSwipeState.current[item.id]?.swiped) {
+                      cardSwipeState.current[item.id] = { ...cardSwipeState.current[item.id], swiped: false };
+                      return;
+                    }
+                    setSelectedProduct(item);
+                  }}
+                  style={canCarousel ? { touchAction: 'pan-y' } : undefined}
+                  className="group flex flex-col rounded-[18px] overflow-hidden min-h-[380px] cursor-pointer bg-[#fbf7f2] transition-shadow duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:shadow-[0_14px_36px_rgba(45,42,38,0.12)]"
                 >
                   <div className="relative h-[80%] min-h-[300px]">
-                    <div className="relative h-full w-full overflow-hidden bg-[#f8f4ee]">
+                    <div className={`relative h-full w-full overflow-hidden ${bgClass}`}>
                       {activeMedia ? (
                         isVideo(activeMedia) ? (
                           <>
@@ -192,6 +231,9 @@ export default function Page() {
                               className="h-full w-full object-cover"
                               preload="metadata"
                               playsInline
+                              autoPlay
+                              muted
+                              loop
                               controls={false}
                               onEnded={() => pauseVideo(activeMediaIdentifier)}
                               onPause={() => {
@@ -199,21 +241,6 @@ export default function Page() {
                                 setPlayingVideos(current => ({ ...current, [activeMediaIdentifier]: false }));
                               }}
                             />
-                            {!playingVideos[activeMediaIdentifier] && (
-                              <button
-                                type="button"
-                                aria-label={`play video for ${item.name}`}
-                                onClick={(event) => {
-                                  event.stopPropagation();
-                                  playVideo(activeMediaIdentifier);
-                                }}
-                                className="absolute inset-0 z-10 flex items-center justify-center"
-                              >
-                                <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-[#2d2a26] shadow-lg">
-                                  <Play className="h-5 w-5 translate-x-0.5" />
-                                </span>
-                              </button>
-                            )}
                           </>
                         ) : (
                           <Image
@@ -248,15 +275,15 @@ export default function Page() {
                               [item.id]: (activeMediaIndex - 1 + mediaItems.length) % mediaItems.length,
                             }));
                           }}
-                          className="h-8 w-8 rounded-full bg-white/80 text-[#2d2a26] flex items-center justify-center border border-black/5 hover:bg-white transition-colors shrink-0"
+                           className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
                         >
                           <ChevronLeft className="h-4 w-4" />
                         </button>
-                        <div className="absolute left-1/2 -translate-x-1/2 inline-flex items-center justify-center gap-1.5 rounded-full bg-black/15 backdrop-blur px-2 py-1 w-fit pointer-events-none">
+                        <div className="absolute left-1/2 -translate-x-1/2 inline-flex items-center justify-center gap-1 w-fit pointer-events-none opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150">
                           {mediaItems.map((_, imageIndex) => (
                             <span
                               key={imageIndex}
-                              className={`h-1.5 rounded-full transition-all ${imageIndex === activeMediaIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`}
+                              className={`h-1 rounded-full transition-all shadow-[0_1px_2px_rgba(0,0,0,0.2)] ${imageIndex === activeMediaIndex ? 'w-3.5 bg-[#faf8f5]' : 'w-1.5 bg-[#faf8f5]/60'}`}
                             />
                           ))}
                         </div>
@@ -270,7 +297,7 @@ export default function Page() {
                               [item.id]: (activeMediaIndex + 1) % mediaItems.length,
                             }));
                           }}
-                          className="h-8 w-8 rounded-full bg-white/80 text-[#2d2a26] flex items-center justify-center border border-black/5 hover:bg-white transition-colors shrink-0"
+                           className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
                         >
                           <ChevronRight className="h-4 w-4" />
                         </button>
@@ -278,7 +305,7 @@ export default function Page() {
                     )}
                   </div>
 
-                  <div className="z-10 flex min-h-[84px] flex-col gap-1 px-4 pt-3 pb-4 overflow-hidden bg-[#f0ebe3] text-[#3d3a36] bg-clip-padding">
+                  <div className="z-10 flex min-h-[84px] flex-col gap-1 px-4 pt-3 pb-4 overflow-hidden bg-[#fbf7f2] text-[#3d3a36] bg-clip-padding">
                     <h3 className="text-xl font-serif font-light leading-snug line-clamp-1">{item.name}</h3>
                     <p className="text-sm leading-snug line-clamp-1 opacity-65 mt-0.5">
                       {item.shortDescription}
@@ -294,7 +321,7 @@ export default function Page() {
         </section>
       </main>
 
-      <footer className="px-6 md:px-12 py-8 flex justify-between items-center border-t border-[#e9e4db]/50">
+      <footer className="px-6 md:px-12 py-8 flex justify-center items-center border-t border-[#e9e4db]/50">
         <span className="text-xs font-bold tracking-widest text-[#3d3a36] opacity-40">
           mesh bakery
         </span>
@@ -306,7 +333,7 @@ export default function Page() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-[#faf8f5]/90 backdrop-blur-sm flex items-stretch justify-center md:items-center p-0 md:p-8 overflow-hidden"
+            className="fixed inset-0 z-50 bg-[#fbf7f2]/90 backdrop-blur-sm flex items-stretch justify-center md:items-center p-0 md:p-8 overflow-hidden"
             onClick={() => setSelectedProduct(null)}
           >
             <button
@@ -321,7 +348,7 @@ export default function Page() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ delay: 0.04, duration: 0.18 }}
-              className="w-full h-[100dvh] md:h-auto md:max-h-[60dvh] md:max-w-6xl md:self-center bg-[#faf8f5] rounded-none md:rounded-[32px] overflow-hidden shadow-2xl border border-black/5 grid grid-rows-[minmax(240px,42vh)_1fr] md:grid-rows-none md:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)] min-h-0"
+              className="w-full h-[100dvh] md:h-auto md:max-h-[60dvh] md:max-w-6xl md:self-center bg-[#fbf7f2] rounded-none md:rounded-[32px] overflow-hidden shadow-2xl border border-black/5 grid grid-rows-[minmax(240px,42vh)_1fr] md:grid-rows-none md:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)] min-h-0"
               onClick={(event) => event.stopPropagation()}
             >
               <div className="p-4 sm:p-5 md:p-6 bg-[#f3eee6] flex flex-col gap-4 min-h-0">
@@ -349,25 +376,13 @@ export default function Page() {
                           className="h-full w-full object-cover"
                           preload="metadata"
                           playsInline
+                          autoPlay
+                          muted
+                          loop
                           controls={false}
                           onEnded={() => pauseVideo(mediaKey(selectedProduct.id, activeDetailMediaIndex))}
                           onPause={() => setPlayingVideos(current => ({ ...current, [mediaKey(selectedProduct.id, activeDetailMediaIndex)]: false }))}
                         />
-                        {!playingVideos[mediaKey(selectedProduct.id, activeDetailMediaIndex)] && (
-                          <button
-                            type="button"
-                            aria-label={`play video for ${selectedProduct.name}`}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              playVideo(mediaKey(selectedProduct.id, activeDetailMediaIndex));
-                            }}
-                            className="absolute inset-0 z-10 flex items-center justify-center"
-                          >
-                            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 text-[#2d2a26] shadow-lg">
-                              <Play className="h-5 w-5 translate-x-0.5" />
-                            </span>
-                          </button>
-                        )}
                       </>
                     ) : (
                       <Image
@@ -397,19 +412,19 @@ export default function Page() {
                                 [selectedProduct.id]: ((current[selectedProduct.id] ?? 0) - 1 + detailMedia.length) % detailMedia.length,
                               }));
                             }}
-                            className="h-9 w-9 rounded-full bg-white/90 text-[#2d2a26] flex items-center justify-center border border-black/5 hover:bg-white transition-colors duration-150 shrink-0"
+                            className="h-9 w-9 text-white flex items-center justify-center transition-colors duration-150 shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
                           >
                             <ChevronLeft className="h-4 w-4" />
                           </button>
 
                           <div className="relative flex-1 h-4">
-                            <div className="absolute left-1/2 -translate-x-1/2 inline-flex items-center justify-center gap-1.5 rounded-full bg-black/15 backdrop-blur px-2 py-1 w-fit pointer-events-none">
+                            <div className="absolute left-1/2 -translate-x-1/2 inline-flex items-center justify-center gap-1 w-fit pointer-events-none">
                               {selectedProduct.media.filter(media => isVisualImage(media) || isVideo(media)).map((_, mediaIndex) => {
                                 const activeDetailMediaIndex = cardMediaIndices[selectedProduct.id] ?? 0;
                                 return (
                                   <span
                                     key={mediaIndex}
-                                    className={`h-1.5 rounded-full transition-all ${mediaIndex === activeDetailMediaIndex ? 'w-4 bg-white' : 'w-1.5 bg-white/50'}`}
+                                    className={`h-1 rounded-full transition-all shadow-[0_1px_2px_rgba(0,0,0,0.2)] ${mediaIndex === activeDetailMediaIndex ? 'w-3.5 bg-[#faf8f5]' : 'w-1.5 bg-[#faf8f5]/60'}`}
                                   />
                                 );
                               })}
@@ -427,7 +442,7 @@ export default function Page() {
                                 [selectedProduct.id]: ((current[selectedProduct.id] ?? 0) + 1) % detailMedia.length,
                               }));
                             }}
-                            className="h-9 w-9 rounded-full bg-white/90 text-[#2d2a26] flex items-center justify-center border border-black/5 hover:bg-white transition-colors duration-150 shrink-0"
+                            className="h-9 w-9 text-white flex items-center justify-center transition-colors duration-150 shrink-0 drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
                           >
                             <ChevronRight className="h-4 w-4" />
                           </button>
@@ -443,7 +458,7 @@ export default function Page() {
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 20, opacity: 0 }}
                 transition={{ delay: 0.075, duration: 0.18 }}
-                className="w-full overflow-y-auto overscroll-contain min-h-0 px-6 py-6 md:px-8 md:py-8 flex flex-col bg-[#faf8f5]"
+                className="w-full overflow-y-auto overscroll-contain min-h-0 px-6 py-6 md:px-8 md:py-8 flex flex-col bg-[#fbf7f2]"
               >
                 <div className="max-w-md mx-auto w-full">
                   <div className="mb-3">
