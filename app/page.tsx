@@ -8,6 +8,10 @@ import { AnimatePresence, motion } from 'motion/react';
 type Media = {
   type: 'image' | 'video';
   url: string;
+  thumbUrl?: string;
+  cardUrl?: string;
+  detailUrl?: string;
+  posterUrl?: string;
 };
 
 type Product = {
@@ -31,6 +35,37 @@ type OfferBanner = {
   isActive: boolean;
 };
 
+type LazyVideoProps = React.VideoHTMLAttributes<HTMLVideoElement> & {
+  src: string;
+  eager?: boolean;
+};
+
+function LazyVideo({ src, eager = false, ...props }: LazyVideoProps) {
+  const videoRef = React.useRef<HTMLVideoElement | null>(null);
+  const [shouldLoad, setShouldLoad] = React.useState(eager);
+
+  React.useEffect(() => {
+    if (eager || shouldLoad) return;
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '250px' }
+    );
+
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, [eager, shouldLoad]);
+
+  return <video ref={videoRef} src={shouldLoad ? src : undefined} {...props} />;
+}
+
 export default function Page() {
   const [catalogue, setCatalogue] = React.useState<Product[]>([]);
   const [filter, setFilter] = useState('all');
@@ -44,10 +79,15 @@ export default function Page() {
   const [searchQuery, setSearchQuery] = useState('');
 
   React.useEffect(() => {
-    fetch('/products.json?v=' + Date.now())
+    fetch('/products.generated.json?v=' + Date.now())
       .then(res => res.json())
       .then(data => setCatalogue(data))
-      .catch(err => console.error('Failed to load products', err));
+      .catch(() => {
+        fetch('/products.json?v=' + Date.now())
+          .then(res => res.json())
+          .then(data => setCatalogue(data))
+          .catch(err => console.error('Failed to load products', err));
+      });
   }, []);
 
   // This is the new offers fetch
@@ -96,6 +136,9 @@ export default function Page() {
   const isGif = (url: string) => /\.gif(\?|#|$)/i.test(url);
   const isVideo = (media: Media) => media.type === 'video';
   const isVisualImage = (media: Media) => media.type === 'image' || isGif(media.url);
+  const getThumbSrc = (media: Media) => media.thumbUrl ?? media.cardUrl ?? media.url;
+  const getCardSrc = (media: Media) => media.cardUrl ?? media.thumbUrl ?? media.url;
+  const getDetailSrc = (media: Media) => media.detailUrl ?? media.cardUrl ?? media.url;
   const formatInr = (value: number) =>
     new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -222,9 +265,12 @@ export default function Page() {
                 >
                   {/* Thumbnail Preview */}
                   {product.media && product.media[0] && product.media[0].type === 'image' && (
-                    <img
-                      src={product.media[0].url}
+                    <Image
+                      src={getThumbSrc(product.media[0])}
                       alt={product.name}
+                      width={40}
+                      height={40}
+                      loading="lazy"
                       className="w-10 h-10 object-cover rounded bg-slate-100 flex-shrink-0"
                     />
                   )}
@@ -366,13 +412,10 @@ export default function Page() {
                       {activeMedia ? (
                         isVideo(activeMedia) ? (
                           <>
-                            <video
-                              ref={(el) => {
-                                videoRefs.current[activeMediaIdentifier] = el;
-                              }}
-                              src={activeMedia.url}
+                            <LazyVideo
+                              src={getCardSrc(activeMedia)}
                               className="h-full w-full object-cover"
-                              preload="metadata"
+                              preload="none"
                               playsInline
                               autoPlay
                               muted
@@ -387,7 +430,7 @@ export default function Page() {
                           </>
                         ) : (
                           <Image
-                            src={activeMedia.url}
+                            src={getCardSrc(activeMedia)}
                             alt={item.name}
                             fill
                             className="object-cover transition-transform duration-[350ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
@@ -542,11 +585,9 @@ export default function Page() {
 
                     return isVideo(activeDetailMedia) ? (
                       <>
-                        <video
-                          ref={(el) => {
-                            videoRefs.current[mediaKey(selectedProduct.id, activeDetailMediaIndex)] = el;
-                          }}
-                          src={activeDetailMedia.url}
+                        <LazyVideo
+                          src={getDetailSrc(activeDetailMedia)}
+                          eager
                           className="h-full w-full object-cover"
                           preload="metadata"
                           playsInline
@@ -560,7 +601,7 @@ export default function Page() {
                       </>
                     ) : (
                       <Image
-                        src={activeDetailMedia.url}
+                        src={getDetailSrc(activeDetailMedia)}
                         alt={selectedProduct.name}
                         fill
                         className="object-cover"
