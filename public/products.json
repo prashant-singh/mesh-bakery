@@ -210,6 +210,60 @@
     "description": "Celebrate your love for the Hidden World with this sleek Light Fury keychain. Capturing her elegant, shimmering white design, this durable charm clips effortlessly onto your backpack or keys to keep your daily gear looking completely legendary."
   },
   {
+    "id": "mb-26",
+    "name": "Demogorgon",
+    "category": "keychains",
+    "media": [
+      {
+        "type": "image",
+        "url": "/products/superheroes/Demogorgon.jpg"
+      }
+    ],
+    "tags": [
+      "restocked"
+    ],
+    "price": 79.00,
+    "size": "8cm x 8cm x 9cm",
+    "shortDescription": "Bring the Upside Down straight to your desk with this terrifying creature.",
+    "description": "Unleash a touch of sci-fi horror on your workspace with this detailed Demogorgon figurine. Featuring its iconic open petal-mouth and long, creepy limbs, this miniature monster makes a major conversation piece for any pop-culture fan's collection."
+  },
+  {
+    "id": "mb-27",
+    "name": "Groot",
+    "category": "keychains",
+    "media": [
+      {
+        "type": "image",
+        "url": "/products/superheroes/Groot.jpg"
+      }
+    ],
+    "tags": [
+      "restocked"
+    ],
+    "price": 79.00,
+    "size": "8cm x 8cm x 9cm",
+    "shortDescription": "I am groot.",
+    "description": "Give your workspace an instant personality boost with this charming mini Groot figurine. Featuring his signature innocent eyes and a tiny sapling smile, this adorable little guardian is the perfect cheerful companion to brighten up your desk setup."
+  },
+  {
+    "id": "mb-28",
+    "name": "Spiderman",
+    "category": "keychains",
+    "media": [
+      {
+        "type": "image",
+        "url": "/products/superheroes/Spiderman.jpg"
+      }
+    ],
+    "tags": [
+      "restocked"
+    ],
+    "price": 79.00,
+    "size": "8cm x 8cm x 9cm",
+    "shortDescription": "Bring a hero to your workspace with this detailed Spider-Man.",
+    "description": "Give your desk a major hero upgrade with this premium Spider-Man Action Figure. Featuring his high-tech armor with detailed golden pincers, this 20cm collectible statue stands completely ready to protect your workspace from any daily villain."
+  },
+  {
     "id": "mb-13",
     "name": "Octopus Controller Stand",
     "category": "desk toys",
@@ -446,63 +500,9 @@
     "tags": [
       "restocked"
     ],
-    "price": 199.00,
+    "price": 699.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Guard your desk setup with Gotham's legendary hero standing by your side.",
     "description": "Bring the Dark Knight straight to your workspace with this detailed Batman action figure. Featuring a sleek, classic suit design, this durable miniature hero is the perfect pocket-sized defender to elevate your gaming desk or bookshelf."
-  },
-  {
-    "id": "mb-25",
-    "name": "Demogorgon",
-    "category": "keychains",
-    "media": [
-      {
-        "type": "image",
-        "url": "/products/superheroes/Demogorgon.jpg"
-      }
-    ],
-    "tags": [
-      "restocked"
-    ],
-    "price": 199.00,
-    "size": "8cm x 8cm x 9cm",
-    "shortDescription": "Bring the Upside Down straight to your desk with this terrifying creature.",
-    "description": "Unleash a touch of sci-fi horror on your workspace with this detailed Demogorgon figurine. Featuring its iconic open petal-mouth and long, creepy limbs, this miniature monster makes a major conversation piece for any pop-culture fan's collection."
-  },
-  {
-    "id": "mb-26",
-    "name": "Groot",
-    "category": "keychains",
-    "media": [
-      {
-        "type": "image",
-        "url": "/products/superheroes/Groot.jpg"
-      }
-    ],
-    "tags": [
-      "restocked"
-    ],
-    "price": 199.00,
-    "size": "8cm x 8cm x 9cm",
-    "shortDescription": "I am groot.",
-    "description": "Give your workspace an instant personality boost with this charming mini Groot figurine. Featuring his signature innocent eyes and a tiny sapling smile, this adorable little guardian is the perfect cheerful companion to brighten up your desk setup."
-  },
-  {
-    "id": "mb-27",
-    "name": "Spiderman",
-    "category": "keychains",
-    "media": [
-      {
-        "type": "image",
-        "url": "/products/superheroes/Spiderman.jpg"
-      }
-    ],
-    "tags": [
-      "restocked"
-    ],
-    "price": 199.00,
-    "size": "8cm x 8cm x 9cm",
-    "shortDescription": "Bring a hero to your workspace with this detailed Spider-Man.",
-    "description": "Give your desk a major hero upgrade with this premium Spider-Man Action Figure. Featuring his high-tech armor with detailed golden pincers, this 20cm collectible statue stands completely ready to protect your workspace from any daily villain."
   }
 ]

@@ -41,7 +41,7 @@ export default function Page() {
   const cardSwipeState = React.useRef<Record<string, { startX: number; startY: number; swiped: boolean; pointerId: number | null }>>({});
   // ---> PASTE THE NEW STATES RIGHT HERE <---
   const [offers, setOffers] = useState<OfferBanner[]>([]);
-  const [dismissedBanners, setDismissedBanners] = useState<Record<string, boolean>>({});
+  const [searchQuery, setSearchQuery] = useState('');
 
   React.useEffect(() => {
     fetch('/products.json?v=' + Date.now())
@@ -116,6 +116,21 @@ export default function Page() {
     setPlayingVideos(current => ({ ...current, [key]: false }));
   };
 
+  const filteredProducts = catalogue.filter((product) => {
+    // 1. Filter by category tabs (Matches your existing category filter logic)
+    const matchesCategory = filter === 'all' || product.category.toLowerCase() === filter.toLowerCase();
+
+    // 2. Filter by search input text
+    const searchLower = searchQuery.toLowerCase();
+    const matchesSearch =
+      product.name.toLowerCase().includes(searchLower) ||
+      product.description.toLowerCase().includes(searchLower) ||
+      product.shortDescription?.toLowerCase().includes(searchLower) ||
+      product.tags.some(tag => tag.toLowerCase().includes(searchLower));
+
+    return matchesCategory && matchesSearch;
+  });
+
   return (
     <div className="min-h-screen flex flex-col bg-[#fbf7f2] font-sans selection:bg-[#ff6b35]/20">
       <header className="px-6 md:px-12 py-6 md:py-8 grid grid-cols-3 items-center">
@@ -129,14 +144,10 @@ export default function Page() {
           </span>
         </div>
 
-        <div />
       </header>
-
-
-
       <div className="w-full flex flex-col">
         {offers
-          .filter(offer => offer.isActive && !dismissedBanners[offer.id])
+          .filter(offer => offer.isActive)
           .map((offer) => {
             // Inside your offers.map() loop:
             const variantStyles: { [key: string]: string } = {
@@ -168,6 +179,79 @@ export default function Page() {
             );
           })}
       </div>
+
+
+      <div className="w-full max-w-md mx-auto my-6 px-4 relative">
+        <div className="relative rounded-md shadow-sm">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <svg className="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.602 10.602z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            name="search"
+            id="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="block w-full rounded-lg border border-slate-300 bg-white py-2 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
+            placeholder="Search for keychain, desk toys & bookmarks..."
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Search Results Dropdown Popup */}
+        {searchQuery.trim().length > 0 && (
+          <div className="absolute left-4 right-4 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-80 overflow-y-auto z-50 divide-y divide-slate-100">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  onClick={() => {
+                    setSelectedProduct(product); // Opens the product overview modal you already have!
+                    setSearchQuery('');          // Resets the search bar
+                  }}
+                  className="flex items-center gap-3 p-3 hover:bg-slate-50 cursor-pointer transition-colors"
+                >
+                  {/* Thumbnail Preview */}
+                  {product.media && product.media[0] && product.media[0].type === 'image' && (
+                    <img
+                      src={product.media[0].url}
+                      alt={product.name}
+                      className="w-10 h-10 object-cover rounded bg-slate-100 flex-shrink-0"
+                    />
+                  )}
+
+                  {/* Product Details */}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-slate-900 truncate">{product.name}</h4>
+                    <p className="text-xs text-slate-500 truncate">{product.shortDescription}</p>
+                  </div>
+
+                  {/* Price tag */}
+                  <div className="text-xs font-bold text-orange-600 whitespace-nowrap">
+                    ₹{product.price}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-4 text-center text-sm text-slate-500">
+                No matching items found.
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+
+
 
 
       <main className="flex-1">
@@ -380,10 +464,41 @@ export default function Page() {
         </section>
       </main>
 
-      <footer className="px-6 md:px-12 py-8 flex justify-center items-center border-t border-[#e9e4db]/50">
-        <span className="text-xs font-bold tracking-widest text-[#3d3a36] opacity-40">
-          mesh bakery
-        </span>
+      <footer className="w-full bg-slate-900 text-slate-400 py-8 mt-12 border-t border-slate-800">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
+
+          {/* Copyright text */}
+          <div className="text-xs">
+            &copy; {new Date().getFullYear()} MeshBakery
+          </div>
+
+          {/* Navigation Links & Socials */}
+          <div className="flex items-center gap-6 text-sm">
+            {/* Return Policy Link */}
+            <a
+              href="/return-policy"
+              className="hover:text-white transition-colors underline underline-offset-4 decoration-slate-700 hover:decoration-white"
+            >
+              Return Policy
+            </a>
+
+            {/* Vertical Separator */}
+            <span className="h-4 w-px bg-slate-800 hidden sm:block" />
+
+            {/* Instagram Page Link */}
+            <a
+              href="https://www.instagram.com/meshbakeryprints/" // Replace with your actual handle url
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 hover:text-white transition-colors group"
+              aria-label="Follow us on Instagram"
+            >
+              <Instagram className="h-4 w-4 text-slate-400 group-hover:text-pink-500 transition-colors" />
+              <span className="font-medium">Instagram</span>
+            </a>
+          </div>
+
+        </div>
       </footer>
 
       <AnimatePresence>
@@ -536,7 +651,7 @@ export default function Page() {
                     {selectedProduct.description}
                   </p>
 
-                  <div className="border-y border-[#e9e4db] py-5 mb-8 flex flex-col gap-3">
+                  {/* <div className="border-y border-[#e9e4db] py-5 mb-8 flex flex-col gap-3">
                     <div className="flex justify-between gap-4">
                       <span className="text-sm font-bold opacity-50 tracking-widest">size</span>
                       <span className="text-sm font-mono opacity-80 text-right">{selectedProduct.size}</span>
@@ -545,7 +660,7 @@ export default function Page() {
                       <span className="text-sm font-bold opacity-50 tracking-widest">material</span>
                       <span className="text-sm font-mono opacity-80 text-right">plant-based pla</span>
                     </div>
-                  </div>
+                  </div> */}
 
                   <a
                     href={whatsappHref(selectedProduct.name, selectedProduct.id)}
