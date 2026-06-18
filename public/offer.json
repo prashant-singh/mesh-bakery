@@ -1,0 +1,14 @@
+[
+	{
+		"id": "offer-1",
+		"text": "🚀 Free shipping on orders over ₹599!",
+		"variant": "primary",
+		"isActive": true
+	},
+	{
+		"id": "offer-2",
+		"text": "🚚 Free Mini Flexi Toy on purchase of ₹499 & above",
+		"variant": "secondary",
+		"isActive": true
+	}
+]

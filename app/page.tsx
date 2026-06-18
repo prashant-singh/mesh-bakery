@@ -22,6 +22,15 @@ type Product = {
   description: string;
 };
 
+type OfferBanner = {
+  id: string;
+  text: string;
+  link?: string;
+  linkText?: string;
+  variant?: 'primary' | 'secondary' | 'alert'; // Add your options here
+  isActive: boolean;
+};
+
 export default function Page() {
   const [catalogue, setCatalogue] = React.useState<Product[]>([]);
   const [filter, setFilter] = useState('all');
@@ -30,6 +39,9 @@ export default function Page() {
   const [playingVideos, setPlayingVideos] = useState<Record<string, boolean>>({});
   const videoRefs = React.useRef<Record<string, HTMLVideoElement | null>>({});
   const cardSwipeState = React.useRef<Record<string, { startX: number; startY: number; swiped: boolean; pointerId: number | null }>>({});
+  // ---> PASTE THE NEW STATES RIGHT HERE <---
+  const [offers, setOffers] = useState<OfferBanner[]>([]);
+  const [dismissedBanners, setDismissedBanners] = useState<Record<string, boolean>>({});
 
   React.useEffect(() => {
     fetch('/products.json?v=' + Date.now())
@@ -37,6 +49,16 @@ export default function Page() {
       .then(data => setCatalogue(data))
       .catch(err => console.error('Failed to load products', err));
   }, []);
+
+  // This is the new offers fetch
+  React.useEffect(() => {
+    fetch('/offer.json?v=' + Date.now())
+      .then(res => res.json())
+      .then(data => setOffers(data))
+      .catch(err => console.error('Failed to load offer banners', err));
+  }, []);
+
+
 
   React.useEffect(() => {
     if (!selectedProduct) return;
@@ -98,7 +120,6 @@ export default function Page() {
     <div className="min-h-screen flex flex-col bg-[#fbf7f2] font-sans selection:bg-[#ff6b35]/20">
       <header className="px-6 md:px-12 py-6 md:py-8 grid grid-cols-3 items-center">
         <div />
-
         <div className="flex items-center justify-center gap-2 md:gap-3">
           <div className="w-8 h-8 bg-[#ff6b35] rounded-full flex items-center justify-center shrink-0">
             <div className="w-3 h-3 bg-white rounded-sm rotate-12" />
@@ -110,6 +131,44 @@ export default function Page() {
 
         <div />
       </header>
+
+
+
+      <div className="w-full flex flex-col">
+        {offers
+          .filter(offer => offer.isActive && !dismissedBanners[offer.id])
+          .map((offer) => {
+            // Inside your offers.map() loop:
+            const variantStyles: { [key: string]: string } = {
+              primary: "bg-gradient-to-r from-amber-500 to-orange-600 border-orange-700/30 text-white",
+              secondary: "bg-slate-900 border-slate-800 text-slate-100",
+              alert: "bg-gradient-to-r from-red-600 to-rose-700 border-rose-800 text-white"
+            };
+
+            // Now TypeScript will happily allow this lookup:
+            const currentStyle = variantStyles[offer.variant || 'primary'] || variantStyles.primary;
+
+            return (
+              <div
+                key={offer.id}
+                className={`relative w-full px-4 py-2 text-center text-sm font-medium z-50 border-b last:border-b-0 ${currentStyle}`}
+              >
+                <div className="flex items-center justify-center gap-2 flex-wrap pr-8">
+                  <span>{offer.text}</span>
+                  {offer.link && (
+                    <a
+                      href={offer.link}
+                      className="underline underline-offset-4 opacity-90 hover:opacity-100 transition-opacity font-semibold"
+                    >
+                      {offer.linkText || "View Offer"} &rarr;
+                    </a>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+      </div>
+
 
       <main className="flex-1">
         <section className="px-6 md:px-12 pt-8 md:pt-12 pb-12 max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-8 md:gap-12 relative overflow-hidden md:overflow-visible">
@@ -275,7 +334,7 @@ export default function Page() {
                               [item.id]: (activeMediaIndex - 1 + mediaItems.length) % mediaItems.length,
                             }));
                           }}
-                           className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
+                          className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
                         >
                           <ChevronLeft className="h-4 w-4" />
                         </button>
@@ -297,7 +356,7 @@ export default function Page() {
                               [item.id]: (activeMediaIndex + 1) % mediaItems.length,
                             }));
                           }}
-                           className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
+                          className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
                         >
                           <ChevronRight className="h-4 w-4" />
                         </button>
