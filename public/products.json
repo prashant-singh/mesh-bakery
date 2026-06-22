@@ -504,5 +504,23 @@
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Guard your desk setup with Gotham's legendary hero standing by your side.",
     "description": "Bring the Dark Knight straight to your workspace with this detailed Batman action figure. Featuring a sleek, classic suit design, this durable miniature hero is the perfect pocket-sized defender to elevate your gaming desk or bookshelf."
+  },
+  {
+    "id": "mb-26",
+    "name": "One Wish Willow",
+    "category": "desk toys",
+    "media": [
+      {
+        "type": "image",
+        "url": "/products/desktoys/OneWishWillow.png"
+      }
+    ],
+    "tags": [
+      "restocked"
+    ],
+    "price": 699.00,
+    "size": "8cm x 8cm x 9cm",
+    "shortDescription": "They say Obsession stays with you long after the credits roll. Consider this the physical proof of my cinematic trauma.",
+    "description": "If you want to bring a piece of Obsession into the real world, this 3D-printed replica is up for grabs!"
   }
 ]
