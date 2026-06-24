@@ -149,9 +149,9 @@ export default function Page() {
   const isGif = (url: string) => /\.gif(\?|#|$)/i.test(url);
   const isVideo = (media: Media) => media.type === 'video';
   const isVisualImage = (media: Media) => media.type === 'image' || isGif(media.url);
-  const getThumbSrc =  withBasePath((media: Media) => media.thumbUrl ?? media.cardUrl ?? media.url;
-  const getCardSrc =  withBasePath((media: Media) => media.cardUrl ?? media.thumbUrl ?? media.url;
-  const getDetailSrc =  withBasePath((media: Media) => media.detailUrl ?? media.cardUrl ?? media.url;
+  const getThumbSrc =  (media: Media) => withBasePath((media: Media) => media.thumbUrl ?? media.cardUrl ?? media.url);
+  const getCardSrc =  (media: Media) => withBasePath((media: Media) => media.cardUrl ?? media.thumbUrl ?? media.url);
+  const getDetailSrc =  (media: Media) => withBasePath((media: Media) => media.detailUrl ?? media.cardUrl ?? media.url);
   const formatInr = (value: number) =>
     new Intl.NumberFormat('en-IN', {
       style: 'currency',
