@@ -86,7 +86,7 @@ export default function Page() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   React.useEffect(() => {
-    fetch(`${BASE_PATH}/products.generated.json?v=` + Date.now())
+     fetch(`${BASE_PATH}/products.json?v=` + Date.now())
       .then(res => res.json())
       .then(data => setCatalogue(data))
       .catch(() => {
