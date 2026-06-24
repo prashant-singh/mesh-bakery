@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { ArrowUp, ChevronDown, ChevronLeft, ChevronRight, Instagram, MessageCircle, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
+import { BASE_PATH } from '@/lib/config';
 
 type Media = {
   type: 'image' | 'video';
@@ -84,7 +85,7 @@ export default function Page() {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   React.useEffect(() => {
-    fetch('/products.generated.json?v=' + Date.now())
+    fetch(`${BASE_PATH}/products.generated.json?v=` + Date.now())
       .then(res => res.json())
       .then(data => setCatalogue(data))
       .catch(() => {
@@ -97,14 +98,14 @@ export default function Page() {
 
   // This is the new offers fetch
   React.useEffect(() => {
-    fetch('/offer.json?v=' + Date.now())
+    fetch(`${BASE_PATH}/offer.json?v=` + Date.now())
       .then(res => res.json())
       .then(data => setOffers(data))
       .catch(err => console.error('Failed to load offer banners', err));
   }, []);
 
   React.useEffect(() => {
-    fetch('/featured-products.json?v=' + Date.now())
+    fetch( `${BASE_PATH}/featured-products.json?v=` + Date.now())
       .then(res => res.json())
       .then(data => setFeaturedProductIds(Array.isArray(data) ? data : data.productIds ?? []))
       .catch(err => console.error('Failed to load featured products', err));
