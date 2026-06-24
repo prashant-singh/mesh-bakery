@@ -522,5 +522,23 @@
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "They say Obsession stays with you long after the credits roll. Consider this the physical proof of my cinematic trauma.",
     "description": "If you want to bring a piece of Obsession into the real world, this 3D-printed replica is up for grabs!"
-  }
+  },
+  {
+    "id": "mb-26",
+    "name": "Customized Barbell Plate",
+    "category": "keychains",
+    "media": [
+      {
+        "type": "image",
+        "url": "/products/keychains/CustomBarbellPlate.jpeg"
+      }
+    ],
+    "tags": [
+      "restocked"
+    ],
+    "price": 79.00,
+    "size": "8cm x 8cm x 9cm",
+    "shortDescription": "The ultimate accessory for the iron obsessed. 🏋️‍♂️",
+    "description": "ully Customizable: Add your name, lift type (Deadlift, Squat, Bench, etc.), and PR weight."
+  },
 ]
