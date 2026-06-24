@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { withBasePath } from '@/lib/config';
 
 export const metadata: Metadata = {
   title: 'mesh bakery | catalogue',
   description: 'catalogue of freshly baked 3D prints',
   icons: {
-    icon: '/favicon.svg',
+    icon: `${BASE_PATH}/favicon.svg`,
   },
 };
 
