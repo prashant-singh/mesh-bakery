@@ -666,7 +666,7 @@ const getDetailSrc = (media: Media) =>
           <div className="flex items-center gap-6 text-sm">
             {/* Return Policy Link */}
             <a
-              href="/return-policy"
+              href=`${BASE_PATH}/return-policy`
               className="hover:text-white transition-colors underline underline-offset-4 decoration-slate-700 hover:decoration-white"
             >
               Return Policy
