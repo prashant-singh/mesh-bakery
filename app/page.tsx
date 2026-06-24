@@ -852,7 +852,7 @@ export default function Page() {
                     </div>
                   </div> */}
 
-                  <a
+                  {/* <a
                     href={whatsappHref(selectedProduct.name, selectedProduct.id)}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -860,7 +860,7 @@ export default function Page() {
                   >
                     <MessageCircle className="h-4 w-4" />
                     order via whatsapp
-                  </a>
+                  </a> */}
 
                   <a
                     href={instagramHref}
