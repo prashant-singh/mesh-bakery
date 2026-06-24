@@ -89,7 +89,7 @@ export default function Page() {
       .then(res => res.json())
       .then(data => setCatalogue(data))
       .catch(() => {
-        fetch('/products.json?v=' + Date.now())
+        fetch(`${BASE_PATH}/products.json?v=` + Date.now())
           .then(res => res.json())
           .then(data => setCatalogue(data))
           .catch(err => console.error('Failed to load products', err));
