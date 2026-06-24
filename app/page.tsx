@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { ArrowUp, ChevronDown, ChevronLeft, ChevronRight, Instagram, MessageCircle, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { BASE_PATH } from '@/lib/config';
-import { withBasePath } from '@/lib/path';
+import { withBasePath } from '@/lib/config';
 
 type Media = {
   type: 'image' | 'video';
