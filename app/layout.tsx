@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { withBasePath } from '@/lib/config';
+import { BASE_PATH } from '@/lib/config';
 
 export const metadata: Metadata = {
   title: 'mesh bakery | catalogue',
