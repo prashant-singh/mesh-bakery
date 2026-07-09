@@ -1,5 +1,59 @@
 [
   {
+    "id": "mb-28",
+    "name": "Customized Number Plate",
+    "category": "keychains",
+    "media": [
+      {
+        "type": "image",
+        "url": "/products/keychains/NumberPlateKeychain.png"
+      }
+    ],
+    "tags": [
+      "new"
+    ],
+    "price": 79.00,
+    "size": "10cm x 5cm x 5cm",
+    "shortDescription": "Your ride, your style, your keychain. ⚡ Get your custom number plate or explore our other unique designs today.",
+    "description": "Buy pack of customizable keychains, One for each vehicle and for each person in your house."
+  },
+  {
+    "id": "mb-27",
+    "name": "Customized Barbell Plate",
+    "category": "keychains",
+    "media": [
+      {
+        "type": "image",
+        "url": "/products/keychains/CustomBarbellPlate.jpeg"
+      }
+    ],
+    "tags": [
+      "restocked"
+    ],
+    "price": 79.00,
+    "size": "8cm x 8cm x 9cm",
+    "shortDescription": "The ultimate accessory for the iron obsessed. 🏋️‍♂️",
+    "description": "Fully Customizable: Add your name, lift type (Deadlift, Squat, Bench, etc.), and PR weight."
+  },
+  {
+    "id": "mb-09",
+    "name": "customised letter",
+    "category": "keychains",
+    "media": [
+      {
+        "type": "image",
+        "url": "/products/keychains/Letter_Bagcharms.png"
+      }
+    ],
+    "tags": [
+      "restocked"
+    ],
+    "price": 79.00,
+    "size": "8cm x 8cm x 9cm",
+    "shortDescription": "Make your daily carry unique with this customizable initial letter keychain.",
+    "description": "Add a personal touch to your everyday gear with this customizable letter keychain. Pick your initial to create a sleek, custom accessory that keeps your keys secure while adding a unique, tailormade statement to your favorite backpack or bag."
+  },
+  {
     "id": "mb-01",
     "name": "Pokeball",
     "category": "keychains",
@@ -46,7 +100,7 @@
     "tags": [
       "popular"
     ],
-    "price": 79.00,
+    "price": 299.00,
     "size": "1:28 scale",
     "shortDescription": "Show off your inner pirate with this iconic Monkey D. Luffy head keychain.",
     "description": "Carry the future Pirate King everywhere with this premium One Piece Luffy head keychain. Featuring his signature smile and iconic straw hat, the durable accessory securely clips to your daily gear—making it the ultimate collectible for any anime fan."
@@ -62,7 +116,7 @@
       }
     ],
     "tags": [],
-    "price": 79.00,
+    "price": 99.00,
     "size": "10cm diameter (set of 4)",
     "shortDescription": "Fidget on the go with this cute, flexible 3D-printed fox keychain.",
     "description": "Add a playful touch to your daily gear with this articulated 3D-printed fox keychain. Featuring a flexible, wiggly body and a cute orange design, it doubles as a fun fidget toy while keeping your keys securely together."
@@ -78,7 +132,7 @@
       }
     ],
     "tags": [],
-    "price": 79.00,
+    "price": 99.00,
     "size": "12cm x 8cm x 10cm",
     "shortDescription": "A group of cute, green, 3D-printed articulated crocodile keychains.",
     "description": "Four playful, cartoon-style green crocodile keychains with big eyes are arranged on a dark wooden table. They feature a 3D-printed texture, yellow undersides, and flexible, segmented bodies."
@@ -96,7 +150,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 79.00,
+    "price": 99.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "A sleek, matte black 3D-printed articulated Toothless dragon keychain.",
     "description": "This cute Toothless dragon keychain features a fully flexible, 3D-printed segmented body in a deep black finish, complete with expressive green eyes and detailed tiny wings."
@@ -114,7 +168,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 79.00,
+    "price": 99.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Level up your daily carry with this sleek, wiggly monochrome fox companion.",
     "description": "Meet your new favorite pocket sidekick! This articulated black-and-white fox keychain features a fully flexible, multi-jointed body that delivers a satisfyingly fluid movement, making it the perfect eye-catching fidget charm to upgrade your keys, bag, or backpack."
@@ -132,28 +186,10 @@
     "tags": [
       "restocked"
     ],
-    "price": 79.00,
+    "price": 99.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Satisfy your style cravings with this adorable, realistic half-eaten chocolate keychain.",
     "description": "Add a deliciously fun twist to your daily carry with this playful half-eaten chocolate bar keychain. Featuring a quirky bite-mark design, this realistic, eye-catching charm is the ultimate sweet accessory to upgrade your keys, backpack, or daily gear."
-  },
-  {
-    "id": "mb-09",
-    "name": "customised letter",
-    "category": "keychains",
-    "media": [
-      {
-        "type": "image",
-        "url": "/products/keychains/Letter_Bagcharms.png"
-      }
-    ],
-    "tags": [
-      "restocked"
-    ],
-    "price": 79.00,
-    "size": "8cm x 8cm x 9cm",
-    "shortDescription": "Make your daily carry unique with this customizable initial letter keychain.",
-    "description": "Add a personal touch to your everyday gear with this customizable letter keychain. Pick your initial to create a sleek, custom accessory that keeps your keys secure while adding a unique, tailormade statement to your favorite backpack or bag."
   },
   {
     "id": "mb-10",
@@ -168,7 +204,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 79.00,
+    "price": 129.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Bring sweet childhood nostalgia to your daily carry with this classic Tweety keychain.",
     "description": "Flash back to your favorite cartoon mornings with this adorable Tweety bird keychain. Featuring that iconic, sassy yellow canary design, this durable little charm clips onto your keys or backpack to keep your daily gear looking fun and personal."
@@ -186,7 +222,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 79.00,
+    "price": 129.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Keep your favorite electric Pokémon dancing on your keys with this flexible Pikachu.",
     "description": "Your everyday carry just got a major upgrade with this fully articulated Pikachu keychain. This clever little companion features a flexible, wiggly body that moves when you do, making it the ultimate playful fidget charm for your keys or backpack."
@@ -204,7 +240,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 79.00,
+    "price": 129.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Bring a touch of Berk magic along with this elegant Light Fury keychain.",
     "description": "Celebrate your love for the Hidden World with this sleek Light Fury keychain. Capturing her elegant, shimmering white design, this durable charm clips effortlessly onto your backpack or keys to keep your daily gear looking completely legendary."
@@ -222,7 +258,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 79.00,
+    "price": 129.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Bring the Upside Down straight to your desk with this terrifying creature.",
     "description": "Unleash a touch of sci-fi horror on your workspace with this detailed Demogorgon figurine. Featuring its iconic open petal-mouth and long, creepy limbs, this miniature monster makes a major conversation piece for any pop-culture fan's collection."
@@ -240,7 +276,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 79.00,
+    "price": 129.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "I am groot.",
     "description": "Give your workspace an instant personality boost with this charming mini Groot figurine. Featuring his signature innocent eyes and a tiny sapling smile, this adorable little guardian is the perfect cheerful companion to brighten up your desk setup."
@@ -258,7 +294,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 79.00,
+    "price": 249.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Bring a hero to your workspace with this detailed Spider-Man.",
     "description": "Give your desk a major hero upgrade with this premium Spider-Man Action Figure. Featuring his high-tech armor with detailed golden pincers, this 20cm collectible statue stands completely ready to protect your workspace from any daily villain."
@@ -334,7 +370,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 199.00,
+    "price": 149.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Brighten your desk setup with this adorable, sturdy cat phone stand.",
     "description": "Give your smartphone a cute place to rest with this charming cat figurine phone holder. Crafted with a stable, slip-resistant base, it keeps your screen at the perfect viewing angle for hands-free video calls, streaming, or browsing."
@@ -370,7 +406,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 199.00,
+    "price": 249.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Bring the galaxy's cutest bounty to your workspace with this mini Grogu.",
     "description": "Give your desk setup a touch of the Force with this premium Grogu Baby Yoda Action Figure. Standing at a compact 5.5 cm, this durable PVC figurine captures his signature curious expression, making it the perfect minimalist desk companion."
@@ -522,23 +558,5 @@
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "They say Obsession stays with you long after the credits roll. Consider this the physical proof of my cinematic trauma.",
     "description": "If you want to bring a piece of Obsession into the real world, this 3D-printed replica is up for grabs!"
-  },
-  {
-    "id": "mb-27",
-    "name": "Customized Barbell Plate",
-    "category": "keychains",
-    "media": [
-      {
-        "type": "image",
-        "url": "/products/keychains/CustomBarbellPlate.jpeg"
-      }
-    ],
-    "tags": [
-      "restocked"
-    ],
-    "price": 79.00,
-    "size": "8cm x 8cm x 9cm",
-    "shortDescription": "The ultimate accessory for the iron obsessed. 🏋️‍♂️",
-    "description": "Fully Customizable: Add your name, lift type (Deadlift, Squat, Bench, etc.), and PR weight."
   }
 ]
