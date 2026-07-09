@@ -62,17 +62,6 @@ export default function ReturnPolicyPage() {
 						</p>
 					</div>
 
-					{/* Section 2: Standard Window */}
-					<div className="flex flex-col rounded-[18px] border border-[#e9e4db] p-6 md:p-8 bg-white shadow-[0_4px_20px_rgba(45,42,38,0.02)]">
-						<div className="flex items-center gap-2 text-[#5b6346] mb-3">
-							<RefreshCw className="h-4 w-4" />
-							<h2 className="text-[11px] font-bold uppercase tracking-widest">7-day replacement window</h2>
-						</div>
-						<p className="text-sm text-[#3d3a36] opacity-80 leading-relaxed">
-							For any unopened packaging variants, supplies, or standard inventory kits, we honor a **7-day window** from delivery. Items must remain completely pristine, unused, and retained inside their original companion wrapping materials.
-						</p>
-					</div>
-
 					{/* Section 3: Damaged Items */}
 					<div className="flex flex-col rounded-[18px] border border-[#e9e4db] p-6 md:p-8 bg-white shadow-[0_4px_20px_rgba(45,42,38,0.02)]">
 						<div className="flex items-center gap-2 text-[#2d2a26] mb-3">
@@ -100,15 +89,6 @@ export default function ReturnPolicyPage() {
 						</p>
 
 						<div className="w-full flex flex-col gap-2">
-							<a
-								href={whatsappHref}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="w-full bg-[#25d366] text-white h-12 rounded-full flex items-center justify-center gap-2 text-xs font-bold tracking-widest hover:bg-[#1fb85a] transition-colors duration-150 shadow-sm"
-							>
-								<MessageCircle className="h-4 w-4" />
-								chat on whatsapp
-							</a>
 
 							<a
 								href={instagramHref}
