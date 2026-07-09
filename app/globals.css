@@ -11,3 +11,95 @@
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
 }
+
+.featured-announcement {
+  --featured-accent: #ffb38f;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--featured-accent) 22%, #2d2a26), #2d2a26 58%),
+    #2d2a26;
+}
+
+.featured-announcement::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.18) 0 1.5px, transparent 2px),
+    linear-gradient(100deg, transparent 0 38%, rgba(255, 255, 255, 0.14) 48%, transparent 58%);
+  background-size: 18px 18px, 150px 100%;
+  opacity: 0.72;
+  animation: featured-pattern-scroll 6s linear infinite;
+}
+
+.featured-announcement--shimmer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  translate: -120% 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.16) 50%, transparent 65%);
+  animation: featured-shimmer 7s ease-in-out infinite;
+}
+
+.featured-announcement--pulse {
+  animation: featured-pulse 7s ease-in-out infinite;
+}
+
+.featured-announcement--arrow .featured-announcement__arrow {
+  animation: featured-arrow 2.4s ease-in-out infinite;
+}
+
+.featured-announcement:is(:hover, :focus-visible),
+.featured-announcement:is(:hover, :focus-visible)::before,
+.featured-announcement:is(:hover, :focus-visible)::after,
+.featured-announcement:is(:hover, :focus-visible) .featured-announcement__arrow {
+  animation-play-state: paused;
+}
+
+@keyframes featured-pattern-scroll {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 72px 36px, 300px 0;
+  }
+}
+
+@keyframes featured-shimmer {
+  0%, 62% {
+    translate: -120% 0;
+  }
+  82%, 100% {
+    translate: 120% 0;
+  }
+}
+
+@keyframes featured-pulse {
+  0%, 100% {
+    box-shadow: 0 1px 2px rgba(45, 42, 38, 0.06), inset 0 0 0 rgba(255, 179, 143, 0);
+  }
+  50% {
+    box-shadow: 0 12px 28px rgba(45, 42, 38, 0.1), inset 0 0 22px rgba(255, 179, 143, 0.16);
+  }
+}
+
+@keyframes featured-arrow {
+  0%, 54%, 100% {
+    translate: 0 0;
+  }
+  68% {
+    translate: 7px 0;
+  }
+  82% {
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .featured-announcement::after,
+  .featured-announcement--shimmer::before,
+  .featured-announcement--pulse,
+  .featured-announcement--arrow .featured-announcement__arrow {
+    animation: none;
+  }
+}

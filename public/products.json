@@ -15,7 +15,8 @@
     "price": 79.00,
     "size": "10cm x 5cm x 5cm",
     "shortDescription": "Your ride, your style, your keychain. ⚡ Get your custom number plate or explore our other unique designs today.",
-    "description": "Buy pack of customizable keychains, One for each vehicle and for each person in your house."
+    "description": "Buy pack of customizable keychains, One for each vehicle and for each person in your house.",
+    "featured": true
   },
   {
     "id": "mb-27",
@@ -33,7 +34,8 @@
     "price": 79.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "The ultimate accessory for the iron obsessed. 🏋️‍♂️",
-    "description": "Fully Customizable: Add your name, lift type (Deadlift, Squat, Bench, etc.), and PR weight."
+    "description": "Fully Customizable: Add your name, lift type (Deadlift, Squat, Bench, etc.), and PR weight.",
+    "featured": true
   },
   {
     "id": "mb-09",
@@ -51,7 +53,8 @@
     "price": 79.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Make your daily carry unique with this customizable initial letter keychain.",
-    "description": "Add a personal touch to your everyday gear with this customizable letter keychain. Pick your initial to create a sleek, custom accessory that keeps your keys secure while adding a unique, tailormade statement to your favorite backpack or bag."
+    "description": "Add a personal touch to your everyday gear with this customizable letter keychain. Pick your initial to create a sleek, custom accessory that keeps your keys secure while adding a unique, tailormade statement to your favorite backpack or bag.",
+    "featured": true
   },
   {
     "id": "mb-01",
@@ -279,7 +282,8 @@
     "price": 129.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "I am groot.",
-    "description": "Give your workspace an instant personality boost with this charming mini Groot figurine. Featuring his signature innocent eyes and a tiny sapling smile, this adorable little guardian is the perfect cheerful companion to brighten up your desk setup."
+    "description": "Give your workspace an instant personality boost with this charming mini Groot figurine. Featuring his signature innocent eyes and a tiny sapling smile, this adorable little guardian is the perfect cheerful companion to brighten up your desk setup.",
+    "featured": true
   },
   {
     "id": "mb-28",
@@ -297,7 +301,8 @@
     "price": 249.00,
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Bring a hero to your workspace with this detailed Spider-Man.",
-    "description": "Give your desk a major hero upgrade with this premium Spider-Man Action Figure. Featuring his high-tech armor with detailed golden pincers, this 20cm collectible statue stands completely ready to protect your workspace from any daily villain."
+    "description": "Give your desk a major hero upgrade with this premium Spider-Man Action Figure. Featuring his high-tech armor with detailed golden pincers, this 20cm collectible statue stands completely ready to protect your workspace from any daily villain.",
+    "featured": true
   },
   {
     "id": "mb-13",

@@ -6,6 +6,8 @@ import { ArrowUp, ChevronDown, ChevronLeft, ChevronRight, Instagram, MessageCirc
 import { AnimatePresence, motion } from 'motion/react';
 import { BASE_PATH } from '@/lib/config';
 import { withBasePath } from '@/lib/config';
+import { FeaturedAnnouncement, type FeaturedConfig } from '@/components/FeaturedAnnouncement';
+import { ProductTagChip, type ProductTag } from '@/components/ProductTagChip';
 
 type Media = {
   type: 'image' | 'video';
@@ -21,7 +23,7 @@ type Product = {
   name: string;
   category: string;
   media: Media[];
-  tags: string[];
+  tags: ProductTag[];
   price: number;
   size: string;
   shortDescription: string;
@@ -78,6 +80,7 @@ export default function Page() {
   const cardSwipeState = React.useRef<Record<string, { startX: number; startY: number; swiped: boolean; pointerId: number | null }>>({});
   // ---> PASTE THE NEW STATES RIGHT HERE <---
   const [offers, setOffers] = useState<OfferBanner[]>([]);
+  const [featuredConfig, setFeaturedConfig] = useState<FeaturedConfig | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [featuredProductIds, setFeaturedProductIds] = useState<string[]>([]);
   const [heroIndex, setHeroIndex] = useState(0);
@@ -110,6 +113,13 @@ export default function Page() {
       .then(res => res.json())
       .then(data => setFeaturedProductIds(Array.isArray(data) ? data : data.productIds ?? []))
       .catch(err => console.error('Failed to load featured products', err));
+  }, []);
+
+  React.useEffect(() => {
+    fetch(`${BASE_PATH}/featured-config.json?v=` + Date.now())
+      .then(res => res.json())
+      .then(data => setFeaturedConfig(data))
+      .catch(err => console.error('Failed to load featured config', err));
   }, []);
 
   React.useEffect(() => {
@@ -156,8 +166,9 @@ export default function Page() {
 const getCardSrc = (media: Media) =>
   withBasePath(media.cardUrl ?? media.thumbUrl ?? media.url);
 
-const getDetailSrc = (media: Media) =>
+  const getDetailSrc = (media: Media) =>
   withBasePath(media.detailUrl ?? media.cardUrl ?? media.url);
+  const getTagName = (tag: ProductTag) => typeof tag === 'string' ? tag : tag.name;
   const formatInr = (value: number) =>
     new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -188,7 +199,7 @@ const getDetailSrc = (media: Media) =>
       product.name.toLowerCase().includes(searchLower) ||
       product.description.toLowerCase().includes(searchLower) ||
       product.shortDescription?.toLowerCase().includes(searchLower) ||
-      product.tags.some(tag => tag.toLowerCase().includes(searchLower));
+      product.tags.some(tag => getTagName(tag).toLowerCase().includes(searchLower));
 
     return matchesCategory && matchesSearch;
   });
@@ -362,6 +373,8 @@ const getDetailSrc = (media: Media) =>
 
         <div className="h-1 bg-gradient-to-b from-[#fff1e4] to-[#fbf7f2]" />
         <div className="bg-[#fbf7f2]">
+          <FeaturedAnnouncement config={featuredConfig} className="pt-8" />
+
           <section className="max-w-6xl mx-auto px-6 md:px-12 py-8">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
               <div className="w-full max-w-md relative">
@@ -551,9 +564,10 @@ const getDetailSrc = (media: Media) =>
                       setSelectedProduct(item);
                     }}
                     style={canCarousel ? { touchAction: 'pan-y' } : undefined}
-                    className="group flex flex-col rounded-[18px] overflow-hidden min-h-[380px] cursor-pointer bg-[#fbf7f2] transition-shadow duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:shadow-[0_14px_36px_rgba(45,42,38,0.12)]"
+                    className="group relative flex flex-col rounded-[18px] overflow-visible min-h-[380px] cursor-pointer bg-[#fbf7f2] transition-shadow duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:shadow-[0_14px_36px_rgba(45,42,38,0.12)]"
                   >
-                    <div className="relative h-[80%] min-h-[300px]">
+                    <ProductTagChip tags={item.tags} />
+                    <div className="relative h-[80%] min-h-[300px] overflow-hidden rounded-t-[18px]">
                       <div className={`relative h-full w-full overflow-hidden ${bgClass}`}>
                         {activeMedia ? (
                           isVideo(activeMedia) ? (
@@ -637,7 +651,7 @@ const getDetailSrc = (media: Media) =>
                       )}
                     </div>
 
-                    <div className="z-10 flex min-h-[84px] flex-col gap-1 px-4 pt-3 pb-4 overflow-hidden bg-[#fbf7f2] text-[#3d3a36] bg-clip-padding">
+                    <div className="z-10 flex min-h-[84px] flex-col gap-1 overflow-hidden rounded-b-[18px] bg-[#fbf7f2] bg-clip-padding px-4 pt-3 pb-4 text-[#3d3a36]">
                       <h3 className="text-xl font-serif font-light leading-snug line-clamp-1">{item.name}</h3>
                       <p className="text-sm leading-snug line-clamp-1 opacity-65 mt-0.5">
                         {item.shortDescription}
