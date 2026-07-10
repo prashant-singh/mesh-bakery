@@ -1,6 +1,7 @@
 'use client';
 
-import { Search, X } from 'lucide-react';
+import { useState } from 'react';
+import { SlidersHorizontal, Search, X } from 'lucide-react';
 
 type CatalogueFiltersProps = {
   searchQuery: string;
@@ -27,13 +28,64 @@ export function CatalogueFilters({
   resultCount,
   searchPlaceholder = 'Search prints...',
 }: CatalogueFiltersProps) {
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const normalizedMaxPrice = Math.max(maxPrice, 0);
   const normalizedPriceLimit = normalizedMaxPrice > 0 ? Math.min(priceLimit || normalizedMaxPrice, normalizedMaxPrice) : 0;
   const showCategories = Boolean(categories?.length && activeCategory && onCategoryChange);
+  const activeFilterCount =
+    (activeCategory && activeCategory !== 'all' ? 1 : 0) +
+    (normalizedMaxPrice > 0 && normalizedPriceLimit < normalizedMaxPrice ? 1 : 0);
+  const filterSummary = `${resultCount} ${resultCount === 1 ? 'item' : 'items'}`;
+
+  const renderFilterControls = (idSuffix: string) => (
+    <>
+      {showCategories && (
+        <div className="space-y-2">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[#3d3a36]/45">
+            category
+          </p>
+          <div className="flex flex-wrap gap-2 md:flex-col">
+            {categories?.map(category => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => onCategoryChange?.(category)}
+                className={`rounded-full px-3 py-2 text-left text-xs font-bold tracking-widest transition-colors duration-150 md:w-full ${activeCategory === category ? 'bg-[#2d2a26] text-[#faf8f5]' : 'bg-[#e9e4db] text-[#2d2a26] hover:bg-[#d8d0c5]'}`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <label htmlFor={`catalogue-price-${idSuffix}`} className="text-[10px] font-bold uppercase tracking-widest text-[#3d3a36]/45">
+            price
+          </label>
+          <span className="text-xs font-bold text-[#ff6b35]">
+            up to ₹{normalizedPriceLimit}
+          </span>
+        </div>
+        <input
+          type="range"
+          id={`catalogue-price-${idSuffix}`}
+          min={0}
+          max={normalizedMaxPrice}
+          step={10}
+          value={normalizedPriceLimit}
+          onChange={(event) => onPriceLimitChange(Number(event.target.value))}
+          disabled={normalizedMaxPrice === 0}
+          className="w-full accent-[#ff6b35]"
+        />
+      </div>
+    </>
+  );
 
   return (
     <aside className="w-full md:sticky md:top-6 md:w-56 md:shrink-0 md:self-start">
-      <div className="flex flex-col gap-5 border-y border-[#e4d8c8] py-5 md:border-y-0 md:py-1">
+      <div className="flex flex-col gap-4 border-y border-[#e4d8c8] py-5 md:gap-5 md:border-y-0 md:py-1">
         <div className="space-y-2">
           <label htmlFor="catalogue-search" className="text-[10px] font-bold uppercase tracking-widest text-[#3d3a36]/45">
             search
@@ -62,51 +114,42 @@ export function CatalogueFilters({
           </div>
         </div>
 
-        {showCategories && (
-          <div className="space-y-2">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#3d3a36]/45">
-              category
-            </p>
-            <div className="flex flex-wrap gap-2 md:flex-col">
-              {categories?.map(category => (
-                <button
-                  key={category}
-                  type="button"
-                  onClick={() => onCategoryChange?.(category)}
-                  className={`rounded-full px-3 py-2 text-left text-xs font-bold tracking-widest transition-colors duration-150 md:w-full ${activeCategory === category ? 'bg-[#2d2a26] text-[#faf8f5]' : 'bg-[#e9e4db] text-[#2d2a26] hover:bg-[#d8d0c5]'}`}
-                >
-                  {category}
-                </button>
-              ))}
+        <div className="md:hidden">
+          <button
+            type="button"
+            onClick={() => setIsMobileFiltersOpen(current => !current)}
+            className="flex w-full items-center justify-between rounded-xl border border-[#d8cbb8] bg-[#e9e4db]/70 px-3 py-2.5 text-xs font-bold tracking-widest text-[#2d2a26] transition-colors hover:bg-[#d8d0c5]"
+            aria-expanded={isMobileFiltersOpen}
+          >
+            <span className="inline-flex items-center gap-2">
+              <SlidersHorizontal className="h-4 w-4" />
+              filters
+              {activeFilterCount > 0 && (
+                <span className="rounded-full bg-[#ff6b35] px-1.5 py-0.5 text-[10px] leading-none text-white">
+                  {activeFilterCount}
+                </span>
+              )}
+            </span>
+            <span className="text-[11px] font-semibold tracking-normal text-[#3d3a36]/55">
+              {filterSummary}
+            </span>
+          </button>
+
+          <div className={`grid transition-[grid-template-rows,opacity] duration-200 ${isMobileFiltersOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+            <div className="min-h-0 overflow-hidden">
+              <div className="flex flex-col gap-5 pt-4">
+                {renderFilterControls('mobile')}
+              </div>
             </div>
           </div>
-        )}
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <label htmlFor="catalogue-price" className="text-[10px] font-bold uppercase tracking-widest text-[#3d3a36]/45">
-              price
-            </label>
-            <span className="text-xs font-bold text-[#ff6b35]">
-              up to ₹{normalizedPriceLimit}
-            </span>
-          </div>
-          <input
-            type="range"
-            id="catalogue-price"
-            min={0}
-            max={normalizedMaxPrice}
-            step={10}
-            value={normalizedPriceLimit}
-            onChange={(event) => onPriceLimitChange(Number(event.target.value))}
-            disabled={normalizedMaxPrice === 0}
-            className="w-full accent-[#ff6b35]"
-          />
         </div>
 
-        <p className="text-xs text-[#3d3a36]/50">
-          {resultCount} {resultCount === 1 ? 'item' : 'items'}
-        </p>
+        <div className="hidden flex-col gap-5 md:flex">
+          {renderFilterControls('desktop')}
+          <p className="text-xs text-[#3d3a36]/50">
+            {filterSummary}
+          </p>
+        </div>
       </div>
     </aside>
   );

@@ -16,6 +16,7 @@ const tagDeck: Record<string, { bg: string; fg: string; ring: string }> = {
   popular: { bg: '#e4f0f4', fg: '#345c68', ring: '#b8d7e1' },
   restocked: { bg: '#f0ebe3', fg: '#665949', ring: '#d8cbb8' },
   limited: { bg: '#f8e6ea', fg: '#7c3d4c', ring: '#e5bac5' },
+  customizable: { bg: '#fff2c7', fg: '#795622', ring: '#edd28a' },
 };
 
 function getTagName(tag: ProductTag) {

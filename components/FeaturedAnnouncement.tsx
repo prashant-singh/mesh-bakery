@@ -17,9 +17,10 @@ export type FeaturedConfig = {
 type FeaturedAnnouncementProps = {
   config: FeaturedConfig | null;
   className?: string;
+  fullWidth?: boolean;
 };
 
-export function FeaturedAnnouncement({ config, className = '' }: FeaturedAnnouncementProps) {
+export function FeaturedAnnouncement({ config, className = '', fullWidth = false }: FeaturedAnnouncementProps) {
   if (!config?.enabled) return null;
 
   const animationClass =
@@ -32,7 +33,7 @@ export function FeaturedAnnouncement({ config, className = '' }: FeaturedAnnounc
           : '';
 
   return (
-    <div className={`max-w-6xl mx-auto px-6 md:px-12 ${className}`}>
+    <div className={fullWidth ? className : `max-w-6xl mx-auto px-6 md:px-12 ${className}`}>
       <Link
         href={withBasePath('/featured')}
         className={`featured-announcement group relative flex w-full items-center justify-between gap-4 overflow-hidden rounded-2xl border border-[#3d3a36]/10 bg-[#2d2a26] px-4 py-6 text-[#faf8f5] shadow-sm transition duration-200 hover:-translate-y-0.5 hover:brightness-110 hover:shadow-[0_14px_30px_rgba(45,42,38,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6b35] focus-visible:ring-offset-2 focus-visible:ring-offset-[#fbf7f2] md:px-5 ${animationClass}`}

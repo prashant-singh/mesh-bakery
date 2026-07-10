@@ -256,125 +256,130 @@ const getCardSrc = (media: Media) =>
             </div>
 
           </header>
-          <section className="px-6 md:px-12 pt-4 md:pt-6 pb-10 max-w-6xl mx-auto relative overflow-hidden md:overflow-visible">
+          <section className="px-6 md:px-12 pt-2 md:pt-4 pb-10 max-w-6xl mx-auto relative overflow-hidden md:overflow-visible">
             <div className="absolute top-0 right-10 w-[400px] h-[400px] bg-[#e9e4db]/40 rounded-full blur-3xl -z-10" />
-            <div className="max-w-md z-10 mb-6 md:mb-8">
-              <h1 className="text-[1.3125rem] md:text-[1.71875rem] font-serif font-light text-[#2d2a26] leading-[1.05]">
-                freshly baked <span className="text-[#5b6346] italic whitespace-nowrap">prints.</span>
-              </h1>
-            </div>
 
-            <div className="overflow-hidden rounded-[18px]">
-              <AnimatePresence initial={false} mode="wait">
-                {activeHeroProduct && (
-                  <motion.div
-                    role="button"
-                    tabIndex={0}
-                    key={activeHeroProduct.id}
-                    initial={{ opacity: 0, x: heroDirection > 0 ? 96 : -96 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: heroDirection > 0 ? -96 : 96 }}
-                    transition={{ duration: 0.13, ease: [0.25, 1, 0.5, 1] }}
-                    onMouseEnter={() => setIsHeroPaused(true)}
-                    onMouseLeave={() => setIsHeroPaused(false)}
-                    onClick={() => setSelectedProduct(activeHeroProduct)}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        setSelectedProduct(activeHeroProduct);
-                      }
-                    }}
-                    className="group relative w-full text-left overflow-hidden rounded-[18px] bg-[#f0ebe3] min-h-[360px] md:min-h-[420px] grid md:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)] cursor-pointer transition-shadow duration-[250ms] hover:shadow-[0_18px_42px_rgba(45,42,38,0.14)]"
-                  >
-                    {heroProducts.length > 1 && (
-                      <>
-                        <button
-                          type="button"
-                          aria-label="previous featured product"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            moveHero(-1);
-                          }}
-                          className="absolute left-3 md:left-4 top-1/2 z-20 h-10 w-10 -translate-y-1/2 rounded-full bg-[#fbf7f2]/80 backdrop-blur border border-[#3d3a36]/10 text-[#2d2a26] shadow-sm flex items-center justify-center transition-colors hover:bg-[#fbf7f2]"
-                        >
-                          <ChevronLeft className="h-5 w-5" />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="next featured product"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            moveHero(1);
-                          }}
-                          className="absolute right-3 md:right-4 top-1/2 z-20 h-10 w-10 -translate-y-1/2 rounded-full bg-[#fbf7f2]/80 backdrop-blur border border-[#3d3a36]/10 text-[#2d2a26] shadow-sm flex items-center justify-center transition-colors hover:bg-[#fbf7f2]"
-                        >
-                          <ChevronRight className="h-5 w-5" />
-                        </button>
-                      </>
-                    )}
-                    <div className="relative min-h-[260px] md:min-h-[420px] overflow-hidden bg-[#e9e4db]">
-                      {activeHeroMedia ? (
-                        isVideo(activeHeroMedia) ? (
-                          <LazyVideo
-                            src={getCardSrc(activeHeroMedia)}
-                            className="h-full w-full object-cover"
-                            preload="none"
-                            playsInline
-                            autoPlay
-                            muted
-                            loop
-                            controls={false}
-                          />
-                        ) : (
-                          <Image
-                            src={getDetailSrc(activeHeroMedia)}
-                            alt={activeHeroProduct.name}
-                            fill
-                            priority
-                            className="object-cover transition-transform duration-[500ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.025]"
-                            sizes="(max-width: 768px) 100vw, 66vw"
-                          />
-                        )
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-sm text-[#3d3a36]/60">
-                          no media available
+            <div className="flex flex-col gap-4 md:gap-5">
+              <section aria-label="fresh">
+                <div className="overflow-hidden rounded-[18px] border border-[#d8cbb8]/80 shadow-[0_1px_0_rgba(255,255,255,0.7)]">
+                  <AnimatePresence initial={false} mode="wait">
+                    {activeHeroProduct && (
+                      <motion.div
+                        role="button"
+                        tabIndex={0}
+                        key={activeHeroProduct.id}
+                        initial={{ opacity: 0, x: heroDirection > 0 ? 96 : -96 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: heroDirection > 0 ? -96 : 96 }}
+                        transition={{ duration: 0.13, ease: [0.25, 1, 0.5, 1] }}
+                        onMouseEnter={() => setIsHeroPaused(true)}
+                        onMouseLeave={() => setIsHeroPaused(false)}
+                        onClick={() => setSelectedProduct(activeHeroProduct)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            setSelectedProduct(activeHeroProduct);
+                          }
+                        }}
+                        className="group relative w-full text-left overflow-hidden rounded-[18px] bg-[#f0ebe3] min-h-[190px] md:min-h-[220px] grid md:grid-cols-[minmax(0,1.5fr)_minmax(240px,0.8fr)] cursor-pointer transition-shadow duration-[250ms] hover:shadow-[0_18px_42px_rgba(45,42,38,0.14)]"
+                      >
+                        {heroProducts.length > 1 && (
+                          <>
+                            <button
+                              type="button"
+                              aria-label="previous fresh product"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                moveHero(-1);
+                              }}
+                              className="absolute left-3 md:left-4 top-1/2 z-20 h-9 w-9 -translate-y-1/2 rounded-full bg-[#fbf7f2]/80 backdrop-blur border border-[#3d3a36]/10 text-[#2d2a26] shadow-sm flex items-center justify-center transition-colors hover:bg-[#fbf7f2]"
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label="next fresh product"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                moveHero(1);
+                              }}
+                              className="absolute right-3 md:right-4 top-1/2 z-20 h-9 w-9 -translate-y-1/2 rounded-full bg-[#fbf7f2]/80 backdrop-blur border border-[#3d3a36]/10 text-[#2d2a26] shadow-sm flex items-center justify-center transition-colors hover:bg-[#fbf7f2]"
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </button>
+                          </>
+                        )}
+                        <div className="relative min-h-[150px] md:min-h-[220px] overflow-hidden bg-[#e9e4db]">
+                          {activeHeroMedia ? (
+                            isVideo(activeHeroMedia) ? (
+                              <LazyVideo
+                                src={getCardSrc(activeHeroMedia)}
+                                className="h-full w-full object-cover"
+                                preload="none"
+                                playsInline
+                                autoPlay
+                                muted
+                                loop
+                                controls={false}
+                              />
+                            ) : (
+                              <Image
+                                src={getDetailSrc(activeHeroMedia)}
+                                alt={activeHeroProduct.name}
+                                fill
+                                priority
+                                className="object-cover transition-transform duration-[500ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.025]"
+                                sizes="(max-width: 768px) 100vw, 66vw"
+                              />
+                            )
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-sm text-[#3d3a36]/60">
+                              no media available
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
 
-                    <div className="flex flex-col justify-end gap-3 p-5 md:p-7 bg-[#fff1e4]">
-                      <span className="text-[10px] font-bold tracking-widest uppercase text-[#5b6346]">
-                        fresh pick
-                      </span>
-                      <h2 className="text-3xl md:text-5xl font-serif font-light leading-tight text-[#2d2a26]">
-                        {activeHeroProduct.name}
-                      </h2>
-                      <p className="text-sm md:text-base leading-relaxed text-[#3d3a36]/70 line-clamp-3">
-                        {activeHeroProduct.shortDescription}
-                      </p>
-                      <p className="text-xl font-bold text-[#ff6b35]">
-                        {formatInr(activeHeroProduct.price)}
-                      </p>
-                      <div className="flex items-center gap-1 pt-1">
-                        {heroProducts.map((product, index) => (
-                          <span
-                            key={product.id}
-                            className={`h-1.5 rounded-full transition-all ${index === heroIndex % heroProducts.length ? 'w-6 bg-[#2d2a26]' : 'w-2 bg-[#2d2a26]/20'}`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                        <div className="flex flex-col justify-center gap-2 p-4 md:p-5 bg-[#fff1e4]">
+                          <span className="text-[10px] font-bold tracking-widest uppercase text-[#5b6346]">
+                            fresh pick
+                          </span>
+                          <h3 className="text-2xl md:text-3xl font-serif font-light leading-tight text-[#2d2a26] line-clamp-2">
+                            {activeHeroProduct.name}
+                          </h3>
+                          <p className="text-xs md:text-sm leading-relaxed text-[#3d3a36]/70 line-clamp-2">
+                            {activeHeroProduct.shortDescription}
+                          </p>
+                          <div className="flex items-center justify-between gap-3 pt-1">
+                            <p className="text-lg font-bold text-[#ff6b35]">
+                              {formatInr(activeHeroProduct.price)}
+                            </p>
+                            <div className="flex items-center gap-1">
+                              {heroProducts.map((product, index) => (
+                                <span
+                                  key={product.id}
+                                  className={`h-1.5 rounded-full transition-all ${index === heroIndex % heroProducts.length ? 'w-6 bg-[#2d2a26]' : 'w-2 bg-[#2d2a26]/20'}`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </section>
+
+              {featuredConfig?.enabled && (
+                <section aria-label="featured">
+                  <FeaturedAnnouncement config={featuredConfig} fullWidth />
+                </section>
+              )}
             </div>
           </section>
         </div>
 
         <div className="h-1 bg-gradient-to-b from-[#fff1e4] to-[#fbf7f2]" />
         <div className="bg-[#fbf7f2]">
-          <FeaturedAnnouncement config={featuredConfig} className="pt-8" />
-
           <section className="max-w-6xl mx-auto flex flex-col gap-8 px-6 py-8 md:flex-row md:px-12 md:pb-24">
             <CatalogueFilters
               searchQuery={searchQuery}
