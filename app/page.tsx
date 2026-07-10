@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { ArrowUp, ChevronDown, ChevronLeft, ChevronRight, Instagram, MessageCircle, X } from 'lucide-react';
+import { ArrowUp, ChevronLeft, ChevronRight, Instagram, MessageCircle, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { BASE_PATH } from '@/lib/config';
 import { withBasePath } from '@/lib/config';
 import { FeaturedAnnouncement, type FeaturedConfig } from '@/components/FeaturedAnnouncement';
 import { ProductTagChip, type ProductTag } from '@/components/ProductTagChip';
+import { CatalogueFilters } from '@/components/CatalogueFilters';
 
 type Media = {
   type: 'image' | 'video';
@@ -82,11 +83,11 @@ export default function Page() {
   const [offers, setOffers] = useState<OfferBanner[]>([]);
   const [featuredConfig, setFeaturedConfig] = useState<FeaturedConfig | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [maxPriceFilter, setMaxPriceFilter] = useState<number | null>(null);
   const [featuredProductIds, setFeaturedProductIds] = useState<string[]>([]);
   const [heroIndex, setHeroIndex] = useState(0);
   const [heroDirection, setHeroDirection] = useState<1 | -1>(1);
   const [isHeroPaused, setIsHeroPaused] = useState(false);
-  const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   React.useEffect(() => {
      fetch(`${BASE_PATH}/products.json?v=` + Date.now())
@@ -146,13 +147,7 @@ export default function Page() {
     };
   }, [selectedProduct]);
 
-  const filtered = filter === 'all'
-    ? catalogue
-    : catalogue.filter(item => item.category === filter);
-
   const categories = ['all', 'keychains', 'desk toys', 'bookmarks', 'superheroes'];
-  const visibleMobileCategories = categories.slice(0, 4);
-  const moreMobileCategories = categories.slice(4);
   const whatsappHref = (productName: string, productId: string) =>
     `https://wa.me/918460582729?text=${encodeURIComponent(`hi mesh bakery, i'd like to order the ${productName} (${productId}).`)}`;
   const instagramHref = 'https://www.instagram.com/meshbakeryprints/';
@@ -188,6 +183,10 @@ const getCardSrc = (media: Media) =>
     }
     setPlayingVideos(current => ({ ...current, [key]: false }));
   };
+  const catalogueMaxPrice = catalogue.length > 0
+    ? Math.max(...catalogue.map(product => product.price))
+    : 0;
+  const activeMaxPrice = maxPriceFilter ?? catalogueMaxPrice;
 
   const filteredProducts = catalogue.filter((product) => {
     // 1. Filter by category tabs (Matches your existing category filter logic)
@@ -200,8 +199,9 @@ const getCardSrc = (media: Media) =>
       product.description.toLowerCase().includes(searchLower) ||
       product.shortDescription?.toLowerCase().includes(searchLower) ||
       product.tags.some(tag => getTagName(tag).toLowerCase().includes(searchLower));
+    const matchesPrice = product.price <= activeMaxPrice;
 
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesSearch && matchesPrice;
   });
   const featuredProducts = featuredProductIds
     .map(id => catalogue.find(product => product.id === id))
@@ -375,134 +375,24 @@ const getCardSrc = (media: Media) =>
         <div className="bg-[#fbf7f2]">
           <FeaturedAnnouncement config={featuredConfig} className="pt-8" />
 
-          <section className="max-w-6xl mx-auto px-6 md:px-12 py-8">
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
-              <div className="w-full max-w-md relative">
-                <div className="relative rounded-md shadow-sm">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <svg className="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.602 10.602z" />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    name="search"
-                    id="search"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="block w-full rounded-lg border border-[#d8cbb8] bg-white py-2 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-                    placeholder="Search for keychain, desk toys & bookmarks..."
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery('')}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
+          <section className="max-w-6xl mx-auto flex flex-col gap-8 px-6 py-8 md:flex-row md:px-12 md:pb-24">
+            <CatalogueFilters
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              categories={categories}
+              activeCategory={filter}
+              onCategoryChange={setFilter}
+              priceLimit={activeMaxPrice}
+              maxPrice={catalogueMaxPrice}
+              onPriceLimitChange={setMaxPriceFilter}
+              resultCount={filteredProducts.length}
+              searchPlaceholder="Search keychains, desk toys..."
+            />
 
-                {searchQuery.trim().length > 0 && (
-                  <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-80 overflow-y-auto z-50 divide-y divide-slate-100">
-                    {filteredProducts.length > 0 ? (
-                      filteredProducts.map((product) => (
-                        <div
-                          key={product.id}
-                          onClick={() => {
-                            setSelectedProduct(product);
-                            setSearchQuery('');
-                          }}
-                          className="flex items-center gap-3 p-3 hover:bg-slate-50 cursor-pointer transition-colors"
-                        >
-                          {product.media && product.media[0] && product.media[0].type === 'image' && (
-                            <Image
-                              src={getThumbSrc(product.media[0])}
-                              alt={product.name}
-                              width={40}
-                              height={40}
-                              loading="lazy"
-                              className="w-10 h-10 object-cover rounded bg-slate-100 flex-shrink-0"
-                            />
-                          )}
-
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-semibold text-slate-900 truncate">{product.name}</h4>
-                            <p className="text-xs text-slate-500 truncate">{product.shortDescription}</p>
-                          </div>
-
-                          <div className="text-xs font-bold text-orange-600 whitespace-nowrap">
-                            ₹{product.price}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="p-4 text-center text-sm text-slate-500">
-                        No matching items found.
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="hidden md:flex flex-wrap justify-end gap-2 z-10">
-                {categories.map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setFilter(cat)}
-                    className={`px-4 py-2 rounded-full text-xs font-bold tracking-widest transition-colors duration-150 ${filter === cat ? 'bg-[#2d2a26] text-[#faf8f5]' : 'bg-[#e9e4db] text-[#2d2a26] hover:bg-[#d8d0c5]'}`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-
-              <div className="md:hidden flex flex-wrap gap-2 z-10">
-                {visibleMobileCategories.map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setFilter(cat)}
-                    className={`px-4 py-2 rounded-full text-xs font-bold tracking-widest transition-colors duration-150 ${filter === cat ? 'bg-[#2d2a26] text-[#faf8f5]' : 'bg-[#e9e4db] text-[#2d2a26] hover:bg-[#d8d0c5]'}`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-                {moreMobileCategories.length > 0 && (
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setIsMoreOpen(current => !current)}
-                      className="px-4 py-2 rounded-full text-xs font-bold tracking-widest transition-colors duration-150 bg-[#e9e4db] text-[#2d2a26] hover:bg-[#d8d0c5] inline-flex items-center gap-1"
-                    >
-                      more
-                      <ChevronDown className="h-3.5 w-3.5" />
-                    </button>
-                    {isMoreOpen && (
-                      <div className="absolute right-0 top-full mt-2 min-w-40 rounded-lg border border-[#d8d0c5] bg-[#fbf7f2] shadow-lg overflow-hidden z-40">
-                        {moreMobileCategories.map(cat => (
-                          <button
-                            key={cat}
-                            type="button"
-                            onClick={() => {
-                              setFilter(cat);
-                              setIsMoreOpen(false);
-                            }}
-                            className={`block w-full px-4 py-3 text-left text-xs font-bold tracking-widest transition-colors ${filter === cat ? 'bg-[#2d2a26] text-[#faf8f5]' : 'text-[#2d2a26] hover:bg-[#e9e4db]'}`}
-                          >
-                            {cat}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-
-          <section className="max-w-6xl mx-auto px-6 md:px-12 pb-24 pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-7 lg:gap-x-7 lg:gap-y-8">
-              {filtered.map((item, idx) => {
+            <div className="min-w-0 flex-1">
+              {filteredProducts.length > 0 ? (
+                <div className="grid grid-cols-1 gap-x-6 gap-y-7 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-7 lg:gap-y-8">
+                  {filteredProducts.map((item, idx) => {
                 const bgs = [
                   'bg-[#f0ebe3] text-[#3d3a36]',
                   'bg-[#ff6b35] text-white',
@@ -662,7 +552,13 @@ const getCardSrc = (media: Media) =>
                     </div>
                   </motion.div>
                 );
-              })}
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-[#d8cbb8] bg-white/55 px-6 py-14 text-center text-[#3d3a36]/68">
+                  No matching items found.
+                </div>
+              )}
             </div>
           </section>
         </div>

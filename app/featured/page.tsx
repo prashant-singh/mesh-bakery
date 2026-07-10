@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import { BASE_PATH, withBasePath } from '@/lib/config';
 import type { FeaturedConfig } from '@/components/FeaturedAnnouncement';
 import { ProductTagChip, type ProductTag } from '@/components/ProductTagChip';
+import { CatalogueFilters } from '@/components/CatalogueFilters';
 
 type Media = {
   type: 'image' | 'video';
@@ -66,6 +67,7 @@ export default function FeaturedPage() {
   const [catalogue, setCatalogue] = React.useState<Product[]>([]);
   const [featuredConfig, setFeaturedConfig] = React.useState<FeaturedConfig | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [maxPriceFilter, setMaxPriceFilter] = useState<number | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cardMediaIndices, setCardMediaIndices] = useState<Record<string, number>>({});
   const cardSwipeState = React.useRef<Record<string, { startX: number; startY: number; swiped: boolean; pointerId: number | null }>>({});
@@ -132,15 +134,22 @@ export default function FeaturedPage() {
   };
 
   const featuredProducts = catalogue.filter(product => product.featured === true);
+  const featuredMaxPrice = featuredProducts.length > 0
+    ? Math.max(...featuredProducts.map(product => product.price))
+    : 0;
+  const activeMaxPrice = maxPriceFilter ?? featuredMaxPrice;
   const searchLower = searchQuery.trim().toLowerCase();
   const filteredProducts = featuredProducts.filter(product => {
-    if (!searchLower) return true;
+    const matchesPrice = product.price <= activeMaxPrice;
+    if (!searchLower) return matchesPrice;
 
     return (
-      product.name.toLowerCase().includes(searchLower) ||
-      product.description.toLowerCase().includes(searchLower) ||
-      product.shortDescription?.toLowerCase().includes(searchLower) ||
-      product.tags.some(tag => getTagName(tag).toLowerCase().includes(searchLower))
+      matchesPrice && (
+        product.name.toLowerCase().includes(searchLower) ||
+        product.description.toLowerCase().includes(searchLower) ||
+        product.shortDescription?.toLowerCase().includes(searchLower) ||
+        product.tags.some(tag => getTagName(tag).toLowerCase().includes(searchLower))
+      )
     );
   });
 
@@ -176,44 +185,23 @@ export default function FeaturedPage() {
           ) : null}
         </div>
 
-        {featuredConfig?.enabled && featuredProducts.length > 0 ? (
-          <section className="max-w-6xl mx-auto px-6 md:px-12 py-8">
-            <div className="mx-auto w-full max-w-md relative">
-              <div className="relative rounded-md shadow-sm">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <svg className="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.602 10.602z" />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  name="featured-search"
-                  id="featured-search"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="block w-full rounded-lg border border-[#d8cbb8] bg-white py-2 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-                  placeholder="Search featured prints..."
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
-                    aria-label="clear search"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </section>
-        ) : null}
-
-        <section className="max-w-6xl mx-auto px-6 md:px-12 pb-24 pt-0">
+        <section className="max-w-6xl mx-auto flex flex-col gap-8 px-6 py-8 md:flex-row md:px-12 md:pb-24">
           {featuredConfig?.enabled && featuredProducts.length > 0 ? (
-            filteredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-7 lg:gap-x-7 lg:gap-y-8">
-                {filteredProducts.map((item, idx) => {
+            <>
+              <CatalogueFilters
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                priceLimit={activeMaxPrice}
+                maxPrice={featuredMaxPrice}
+                onPriceLimitChange={setMaxPriceFilter}
+                resultCount={filteredProducts.length}
+                searchPlaceholder="Search featured prints..."
+              />
+
+              <div className="min-w-0 flex-1">
+                {filteredProducts.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-x-6 gap-y-7 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-7 lg:gap-y-8">
+                    {filteredProducts.map((item, idx) => {
                   const bgs = [
                     'bg-[#f0ebe3] text-[#3d3a36]',
                     'bg-[#ff6b35] text-white',
@@ -367,15 +355,17 @@ export default function FeaturedPage() {
                       </div>
                     </motion.div>
                   );
-                })}
+                    })}
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-[#d8cbb8] bg-white/55 px-6 py-14 text-center text-[#3d3a36]/68">
+                    No featured items match your filters.
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="rounded-2xl border border-[#d8cbb8] bg-white/55 px-6 py-14 text-center text-[#3d3a36]/68">
-                No featured items match your search.
-              </div>
-            )
+            </>
           ) : (
-            <div className="rounded-2xl border border-[#d8cbb8] bg-white/55 px-6 py-14 text-center text-[#3d3a36]/68">
+            <div className="w-full rounded-2xl border border-[#d8cbb8] bg-white/55 px-6 py-14 text-center text-[#3d3a36]/68">
               No featured collection is currently available.
             </div>
           )}
