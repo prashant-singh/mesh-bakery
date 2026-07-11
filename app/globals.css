@@ -15,7 +15,7 @@
 .featured-announcement {
   --featured-accent: #ffb38f;
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--featured-accent) 22%, #2d2a26), #2d2a26 58%),
+    linear-gradient(135deg, color-mix(in srgb, var(--featured-accent) 18%, #2d2a26), #2d2a26 58%),
     #2d2a26;
 }
 
@@ -25,11 +25,11 @@
   inset: 0;
   pointer-events: none;
   background-image:
-    radial-gradient(circle at center, rgba(255, 255, 255, 0.18) 0 1.5px, transparent 2px),
-    linear-gradient(100deg, transparent 0 38%, rgba(255, 255, 255, 0.14) 48%, transparent 58%);
-  background-size: 18px 18px, 150px 100%;
-  opacity: 0.72;
-  animation: featured-pattern-scroll 6s linear infinite;
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.12) 0 1px, transparent 1px 12px),
+    linear-gradient(100deg, transparent 0 38%, rgba(255, 255, 255, 0.12) 48%, transparent 58%);
+  background-size: 56px 56px, 160px 100%;
+  opacity: 0.64;
+  animation: featured-pattern-scroll 8s linear infinite;
 }
 
 .featured-announcement--shimmer::before {
@@ -61,7 +61,7 @@
     background-position: 0 0, 0 0;
   }
   to {
-    background-position: 72px 36px, 300px 0;
+    background-position: 112px 56px, 320px 0;
   }
 }
 

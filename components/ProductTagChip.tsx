@@ -27,7 +27,7 @@ export function ProductTagChip({ tags }: ProductTagChipProps) {
   const primaryTag = tags?.[0];
   if (!primaryTag) return null;
 
-  const name = getTagName(primaryTag).trim();
+  const name = getTagName(primaryTag).replace(/\//g, ' ').trim();
   if (!name) return null;
 
   const normalizedName = name.toLowerCase();
@@ -38,21 +38,22 @@ export function ProductTagChip({ tags }: ProductTagChipProps) {
       backgroundColor: customColor,
       borderColor: customColor,
       color: '#2d2a26',
-      boxShadow: '0 10px 22px rgba(45, 42, 38, 0.16), inset 0 1px rgba(255, 255, 255, 0.55)',
+      backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.56), rgba(255,255,255,0) 55%)',
+      boxShadow: '0 10px 22px rgba(45, 42, 38, 0.14), inset 0 1px rgba(255, 255, 255, 0.68), inset 0 -1px rgba(45, 42, 38, 0.06)',
     } satisfies CSSProperties
     : {
       backgroundColor: palette.bg,
       borderColor: palette.ring,
       color: palette.fg,
-      boxShadow: '0 10px 22px rgba(45, 42, 38, 0.16), inset 0 1px rgba(255, 255, 255, 0.62)',
+      backgroundImage: 'linear-gradient(135deg, rgba(255,255,255,0.58), rgba(255,255,255,0) 55%)',
+      boxShadow: '0 10px 22px rgba(45, 42, 38, 0.14), inset 0 1px rgba(255, 255, 255, 0.72), inset 0 -1px rgba(45, 42, 38, 0.06)',
     } satisfies CSSProperties;
 
   return (
     <span
-      className="absolute -left-2.5 -top-2 z-30 inline-flex rotate-[-7deg] items-center gap-1.5 rounded-[10px] border px-3 py-1.5 text-[10px] font-black uppercase leading-none tracking-widest backdrop-blur transition-transform duration-200 group-hover:rotate-[-4deg] group-hover:scale-[1.03]"
+      className="absolute -left-2.5 -top-2 z-30 inline-flex items-center gap-1.5 rounded-[9px] border border-dashed px-3 py-1.5 text-[10px] font-black uppercase leading-none tracking-widest backdrop-blur transition-transform duration-200 group-hover:-translate-y-0.5"
       style={style}
     >
-      <span className="h-1.5 w-1.5 rounded-full bg-current opacity-45" />
       {name}
     </span>
   );

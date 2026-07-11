@@ -32,6 +32,15 @@ type Product = {
   featured?: boolean;
 };
 
+type OfferBanner = {
+  id: string;
+  text: string;
+  link?: string;
+  linkText?: string;
+  variant?: 'primary' | 'secondary' | 'alert';
+  isActive: boolean;
+};
+
 type LazyVideoProps = React.VideoHTMLAttributes<HTMLVideoElement> & {
   src: string;
   eager?: boolean;
@@ -65,6 +74,7 @@ function LazyVideo({ src, eager = false, ...props }: LazyVideoProps) {
 
 export default function FeaturedPage() {
   const [catalogue, setCatalogue] = React.useState<Product[]>([]);
+  const [offers, setOffers] = React.useState<OfferBanner[]>([]);
   const [featuredConfig, setFeaturedConfig] = React.useState<FeaturedConfig | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [maxPriceFilter, setMaxPriceFilter] = useState<number | null>(null);
@@ -85,6 +95,13 @@ export default function FeaturedPage() {
       .then(res => res.json())
       .then(data => setFeaturedConfig(data))
       .catch(err => console.error('Failed to load featured config', err));
+  }, []);
+
+  React.useEffect(() => {
+    fetch(`${BASE_PATH}/offer.json?v=` + Date.now())
+      .then(res => res.json())
+      .then(data => setOffers(data))
+      .catch(err => console.error('Failed to load offer banners', err));
   }, []);
 
   React.useEffect(() => {
@@ -119,6 +136,8 @@ export default function FeaturedPage() {
   const getDetailSrc = (media: Media) => withBasePath(media.detailUrl ?? media.cardUrl ?? media.url);
   const mediaKey = (productId: string, mediaIndex: number) => `${productId}-${mediaIndex}`;
   const getTagName = (tag: ProductTag) => typeof tag === 'string' ? tag : tag.name;
+  const isCustomizableProduct = (product: Product) =>
+    product.tags.some(tag => getTagName(tag).toLowerCase() === 'customizable');
   const instagramHref = 'https://www.instagram.com/meshbakeryprints/';
   const formatInr = (value: number) =>
     new Intl.NumberFormat('en-IN', {
@@ -152,9 +171,23 @@ export default function FeaturedPage() {
       )
     );
   });
+  const activeOffers = offers.filter(offer => offer.isActive);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fbf7f2] font-sans selection:bg-[#ff6b35]/20">
+      {activeOffers.length > 0 && (
+        <div className="w-full px-4 py-2 text-center text-sm md:text-base font-semibold text-[#8a3f1f] bg-[#ffd7bf]">
+          <div className="flex items-center justify-center gap-3 md:gap-5 flex-wrap">
+            {activeOffers.map((offer, index) => (
+              <React.Fragment key={offer.id}>
+                {index > 0 && <span className="text-[#b96034]">•</span>}
+                <span>{offer.text}</span>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      )}
+
       <main className="flex-1">
         <div className="bg-[#fff1e4]">
           <header className="px-6 md:px-12 py-6 md:py-8 grid grid-cols-3 items-center">
@@ -200,7 +233,7 @@ export default function FeaturedPage() {
 
               <div className="min-w-0 flex-1">
                 {filteredProducts.length > 0 ? (
-                  <div className="grid grid-cols-1 gap-x-6 gap-y-7 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-7 lg:gap-y-8">
+                  <div className="grid grid-cols-1 gap-x-7 gap-y-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-11">
                     {filteredProducts.map((item, idx) => {
                   const bgs = [
                     'bg-[#f0ebe3] text-[#3d3a36]',
@@ -263,7 +296,7 @@ export default function FeaturedPage() {
                         setSelectedProduct(item);
                       }}
                       style={canCarousel ? { touchAction: 'pan-y' } : undefined}
-                      className="group relative flex flex-col rounded-[18px] overflow-visible min-h-[380px] cursor-pointer bg-[#fbf7f2] transition-shadow duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:shadow-[0_14px_36px_rgba(45,42,38,0.12)]"
+                      className="group relative flex flex-col rounded-[18px] overflow-visible min-h-[380px] cursor-pointer border border-[#d8cbb8]/70 bg-[#fbf7f2] transition duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(45,42,38,0.11)]"
                     >
                       <ProductTagChip tags={item.tags} />
                       <div className="relative h-[80%] min-h-[300px] overflow-hidden rounded-t-[18px]">
@@ -359,7 +392,7 @@ export default function FeaturedPage() {
                   </div>
                 ) : (
                   <div className="rounded-2xl border border-[#d8cbb8] bg-white/55 px-6 py-14 text-center text-[#3d3a36]/68">
-                    No featured items match your filters.
+                    Nothing baked with those filters yet.
                   </div>
                 )}
               </div>
@@ -481,6 +514,12 @@ export default function FeaturedPage() {
                   <p className="text-base text-[#3d3a36] opacity-80 leading-relaxed mb-6">
                     {selectedProduct.description}
                   </p>
+
+                  {isCustomizableProduct(selectedProduct) && (
+                    <div className="mb-6 rounded-2xl border border-[#edd28a] bg-[#fff7dc] px-4 py-3 text-sm leading-relaxed text-[#795622]">
+                      Made to personalize. Add the name, number, initial, or detail you want when you DM us.
+                    </div>
+                  )}
 
                   <a
                     href={instagramHref}

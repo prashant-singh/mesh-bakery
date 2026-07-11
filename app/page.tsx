@@ -164,6 +164,8 @@ const getCardSrc = (media: Media) =>
   const getDetailSrc = (media: Media) =>
   withBasePath(media.detailUrl ?? media.cardUrl ?? media.url);
   const getTagName = (tag: ProductTag) => typeof tag === 'string' ? tag : tag.name;
+  const isCustomizableProduct = (product: Product) =>
+    product.tags.some(tag => getTagName(tag).toLowerCase() === 'customizable');
   const formatInr = (value: number) =>
     new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -261,7 +263,7 @@ const getCardSrc = (media: Media) =>
 
             <div className="flex flex-col gap-4 md:gap-5">
               <section aria-label="fresh">
-                <div className="overflow-hidden rounded-[18px] border border-[#d8cbb8]/80 shadow-[0_1px_0_rgba(255,255,255,0.7)]">
+                <div className="overflow-hidden rounded-[18px] border border-[#d8cbb8]/80 bg-[#fbf7f2]/45 p-1 shadow-[0_1px_0_rgba(255,255,255,0.75),0_16px_34px_rgba(45,42,38,0.06)]">
                   <AnimatePresence initial={false} mode="wait">
                     {activeHeroProduct && (
                       <motion.div
@@ -281,7 +283,7 @@ const getCardSrc = (media: Media) =>
                             setSelectedProduct(activeHeroProduct);
                           }
                         }}
-                        className="group relative w-full text-left overflow-hidden rounded-[18px] bg-[#f0ebe3] min-h-[190px] md:min-h-[220px] grid md:grid-cols-[minmax(0,1.5fr)_minmax(240px,0.8fr)] cursor-pointer transition-shadow duration-[250ms] hover:shadow-[0_18px_42px_rgba(45,42,38,0.14)]"
+                        className="group relative w-full text-left overflow-hidden rounded-[15px] bg-[#f0ebe3] min-h-[190px] md:min-h-[220px] grid md:grid-cols-[minmax(0,1.5fr)_minmax(240px,0.8fr)] cursor-pointer transition-shadow duration-[250ms] hover:shadow-[0_14px_30px_rgba(45,42,38,0.12)]"
                       >
                         {heroProducts.length > 1 && (
                           <>
@@ -341,7 +343,7 @@ const getCardSrc = (media: Media) =>
 
                         <div className="flex flex-col justify-center gap-2 p-4 md:p-5 bg-[#fff1e4]">
                           <span className="text-[10px] font-bold tracking-widest uppercase text-[#5b6346]">
-                            fresh pick
+                            fresh from the tray
                           </span>
                           <h3 className="text-2xl md:text-3xl font-serif font-light leading-tight text-[#2d2a26] line-clamp-2">
                             {activeHeroProduct.name}
@@ -396,7 +398,7 @@ const getCardSrc = (media: Media) =>
 
             <div className="min-w-0 flex-1">
               {filteredProducts.length > 0 ? (
-                <div className="grid grid-cols-1 gap-x-6 gap-y-7 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-7 lg:gap-y-8">
+                <div className="grid grid-cols-1 gap-x-7 gap-y-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-11">
                   {filteredProducts.map((item, idx) => {
                 const bgs = [
                   'bg-[#f0ebe3] text-[#3d3a36]',
@@ -459,7 +461,7 @@ const getCardSrc = (media: Media) =>
                       setSelectedProduct(item);
                     }}
                     style={canCarousel ? { touchAction: 'pan-y' } : undefined}
-                    className="group relative flex flex-col rounded-[18px] overflow-visible min-h-[380px] cursor-pointer bg-[#fbf7f2] transition-shadow duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:shadow-[0_14px_36px_rgba(45,42,38,0.12)]"
+                    className="group relative flex flex-col rounded-[18px] overflow-visible min-h-[380px] cursor-pointer border border-[#d8cbb8]/70 bg-[#fbf7f2] transition duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(45,42,38,0.11)]"
                   >
                     <ProductTagChip tags={item.tags} />
                     <div className="relative h-[80%] min-h-[300px] overflow-hidden rounded-t-[18px]">
@@ -561,7 +563,7 @@ const getCardSrc = (media: Media) =>
                 </div>
               ) : (
                 <div className="rounded-2xl border border-[#d8cbb8] bg-white/55 px-6 py-14 text-center text-[#3d3a36]/68">
-                  No matching items found.
+                  Nothing baked with those filters yet.
                 </div>
               )}
             </div>
@@ -762,6 +764,12 @@ const getCardSrc = (media: Media) =>
                   <p className="text-base text-[#3d3a36] opacity-80 leading-relaxed mb-6">
                     {selectedProduct.description}
                   </p>
+
+                  {isCustomizableProduct(selectedProduct) && (
+                    <div className="mb-6 rounded-2xl border border-[#edd28a] bg-[#fff7dc] px-4 py-3 text-sm leading-relaxed text-[#795622]">
+                      Made to personalize. Add the name, number, initial, or detail you want when you DM us.
+                    </div>
+                  )}
 
                   {/* <div className="border-y border-[#e9e4db] py-5 mb-8 flex flex-col gap-3">
                     <div className="flex justify-between gap-4">
