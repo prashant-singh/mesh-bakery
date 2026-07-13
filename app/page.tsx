@@ -2,10 +2,14 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { ArrowUp, ChevronDown, ChevronLeft, ChevronRight, Instagram, MessageCircle, X } from 'lucide-react';
+import { ArrowUp, ChevronLeft, ChevronRight, Instagram, MessageCircle, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { BASE_PATH } from '@/lib/config';
 import { withBasePath } from '@/lib/config';
+import { FeaturedAnnouncement, type FeaturedConfig } from '@/components/FeaturedAnnouncement';
+import { ProductTagChip, type ProductTag } from '@/components/ProductTagChip';
+import { CatalogueFilters } from '@/components/CatalogueFilters';
+import { RazorpayCheckoutButton } from '@/components/RazorpayCheckoutButton';
 
 type Media = {
   type: 'image' | 'video';
@@ -21,7 +25,7 @@ type Product = {
   name: string;
   category: string;
   media: Media[];
-  tags: string[];
+  tags: ProductTag[];
   price: number;
   size: string;
   shortDescription: string;
@@ -78,15 +82,16 @@ export default function Page() {
   const cardSwipeState = React.useRef<Record<string, { startX: number; startY: number; swiped: boolean; pointerId: number | null }>>({});
   // ---> PASTE THE NEW STATES RIGHT HERE <---
   const [offers, setOffers] = useState<OfferBanner[]>([]);
+  const [featuredConfig, setFeaturedConfig] = useState<FeaturedConfig | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [maxPriceFilter, setMaxPriceFilter] = useState<number | null>(null);
   const [featuredProductIds, setFeaturedProductIds] = useState<string[]>([]);
   const [heroIndex, setHeroIndex] = useState(0);
   const [heroDirection, setHeroDirection] = useState<1 | -1>(1);
   const [isHeroPaused, setIsHeroPaused] = useState(false);
-  const [isMoreOpen, setIsMoreOpen] = useState(false);
 
   React.useEffect(() => {
-     fetch(`${BASE_PATH}/products.json?v=` + Date.now())
+    fetch(`${BASE_PATH}/products.json?v=` + Date.now())
       .then(res => res.json())
       .then(data => setCatalogue(data))
       .catch(() => {
@@ -106,10 +111,17 @@ export default function Page() {
   }, []);
 
   React.useEffect(() => {
-    fetch( `${BASE_PATH}/featured-products.json?v=` + Date.now())
+    fetch(`${BASE_PATH}/featured-products.json?v=` + Date.now())
       .then(res => res.json())
       .then(data => setFeaturedProductIds(Array.isArray(data) ? data : data.productIds ?? []))
       .catch(err => console.error('Failed to load featured products', err));
+  }, []);
+
+  React.useEffect(() => {
+    fetch(`${BASE_PATH}/featured-config.json?v=` + Date.now())
+      .then(res => res.json())
+      .then(data => setFeaturedConfig(data))
+      .catch(err => console.error('Failed to load featured config', err));
   }, []);
 
   React.useEffect(() => {
@@ -136,13 +148,7 @@ export default function Page() {
     };
   }, [selectedProduct]);
 
-  const filtered = filter === 'all'
-    ? catalogue
-    : catalogue.filter(item => item.category === filter);
-
   const categories = ['all', 'keychains', 'desk toys', 'bookmarks', 'superheroes'];
-  const visibleMobileCategories = categories.slice(0, 4);
-  const moreMobileCategories = categories.slice(4);
   const whatsappHref = (productName: string, productId: string) =>
     `https://wa.me/918460582729?text=${encodeURIComponent(`hi mesh bakery, i'd like to order the ${productName} (${productId}).`)}`;
   const instagramHref = 'https://www.instagram.com/meshbakeryprints/';
@@ -151,13 +157,16 @@ export default function Page() {
   const isVideo = (media: Media) => media.type === 'video';
   const isVisualImage = (media: Media) => media.type === 'image' || isGif(media.url);
   const getThumbSrc = (media: Media) =>
-  withBasePath(media.thumbUrl ?? media.cardUrl ?? media.url);
+    withBasePath(media.thumbUrl ?? media.cardUrl ?? media.url);
 
-const getCardSrc = (media: Media) =>
-  withBasePath(media.cardUrl ?? media.thumbUrl ?? media.url);
+  const getCardSrc = (media: Media) =>
+    withBasePath(media.cardUrl ?? media.thumbUrl ?? media.url);
 
-const getDetailSrc = (media: Media) =>
-  withBasePath(media.detailUrl ?? media.cardUrl ?? media.url);
+  const getDetailSrc = (media: Media) =>
+    withBasePath(media.detailUrl ?? media.cardUrl ?? media.url);
+  const getTagName = (tag: ProductTag) => typeof tag === 'string' ? tag : tag.name;
+  const isCustomizableProduct = (product: Product) =>
+    product.tags.some(tag => getTagName(tag).toLowerCase() === 'customizable');
   const formatInr = (value: number) =>
     new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -177,6 +186,10 @@ const getDetailSrc = (media: Media) =>
     }
     setPlayingVideos(current => ({ ...current, [key]: false }));
   };
+  const catalogueMaxPrice = catalogue.length > 0
+    ? Math.max(...catalogue.map(product => product.price))
+    : 0;
+  const activeMaxPrice = maxPriceFilter ?? catalogueMaxPrice;
 
   const filteredProducts = catalogue.filter((product) => {
     // 1. Filter by category tabs (Matches your existing category filter logic)
@@ -188,9 +201,10 @@ const getDetailSrc = (media: Media) =>
       product.name.toLowerCase().includes(searchLower) ||
       product.description.toLowerCase().includes(searchLower) ||
       product.shortDescription?.toLowerCase().includes(searchLower) ||
-      product.tags.some(tag => tag.toLowerCase().includes(searchLower));
+      product.tags.some(tag => getTagName(tag).toLowerCase().includes(searchLower));
+    const matchesPrice = product.price <= activeMaxPrice;
 
-    return matchesCategory && matchesSearch;
+    return matchesCategory && matchesSearch && matchesPrice;
   });
   const featuredProducts = featuredProductIds
     .map(id => catalogue.find(product => product.id === id))
@@ -245,321 +259,64 @@ const getDetailSrc = (media: Media) =>
             </div>
 
           </header>
-          <section className="px-6 md:px-12 pt-4 md:pt-6 pb-10 max-w-6xl mx-auto relative overflow-hidden md:overflow-visible">
+          <section className="px-6 md:px-12 pt-2 md:pt-4 pb-10 max-w-6xl mx-auto relative overflow-hidden md:overflow-visible">
             <div className="absolute top-0 right-10 w-[400px] h-[400px] bg-[#e9e4db]/40 rounded-full blur-3xl -z-10" />
-            <div className="max-w-md z-10 mb-6 md:mb-8">
-              <h1 className="text-[1.3125rem] md:text-[1.71875rem] font-serif font-light text-[#2d2a26] leading-[1.05]">
-                freshly baked <span className="text-[#5b6346] italic whitespace-nowrap">prints.</span>
-              </h1>
-            </div>
 
-            <div className="overflow-hidden rounded-[18px]">
-              <AnimatePresence initial={false} mode="wait">
-                {activeHeroProduct && (
-                  <motion.div
-                    role="button"
-                    tabIndex={0}
-                    key={activeHeroProduct.id}
-                    initial={{ opacity: 0, x: heroDirection > 0 ? 96 : -96 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: heroDirection > 0 ? -96 : 96 }}
-                    transition={{ duration: 0.13, ease: [0.25, 1, 0.5, 1] }}
-                    onMouseEnter={() => setIsHeroPaused(true)}
-                    onMouseLeave={() => setIsHeroPaused(false)}
-                    onClick={() => setSelectedProduct(activeHeroProduct)}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        setSelectedProduct(activeHeroProduct);
-                      }
-                    }}
-                    className="group relative w-full text-left overflow-hidden rounded-[18px] bg-[#f0ebe3] min-h-[360px] md:min-h-[420px] grid md:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)] cursor-pointer transition-shadow duration-[250ms] hover:shadow-[0_18px_42px_rgba(45,42,38,0.14)]"
-                  >
-                    {heroProducts.length > 1 && (
-                      <>
-                        <button
-                          type="button"
-                          aria-label="previous featured product"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            moveHero(-1);
-                          }}
-                          className="absolute left-3 md:left-4 top-1/2 z-20 h-10 w-10 -translate-y-1/2 rounded-full bg-[#fbf7f2]/80 backdrop-blur border border-[#3d3a36]/10 text-[#2d2a26] shadow-sm flex items-center justify-center transition-colors hover:bg-[#fbf7f2]"
-                        >
-                          <ChevronLeft className="h-5 w-5" />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="next featured product"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            moveHero(1);
-                          }}
-                          className="absolute right-3 md:right-4 top-1/2 z-20 h-10 w-10 -translate-y-1/2 rounded-full bg-[#fbf7f2]/80 backdrop-blur border border-[#3d3a36]/10 text-[#2d2a26] shadow-sm flex items-center justify-center transition-colors hover:bg-[#fbf7f2]"
-                        >
-                          <ChevronRight className="h-5 w-5" />
-                        </button>
-                      </>
-                    )}
-                    <div className="relative min-h-[260px] md:min-h-[420px] overflow-hidden bg-[#e9e4db]">
-                      {activeHeroMedia ? (
-                        isVideo(activeHeroMedia) ? (
-                          <LazyVideo
-                            src={getCardSrc(activeHeroMedia)}
-                            className="h-full w-full object-cover"
-                            preload="none"
-                            playsInline
-                            autoPlay
-                            muted
-                            loop
-                            controls={false}
-                          />
-                        ) : (
-                          <Image
-                            src={getDetailSrc(activeHeroMedia)}
-                            alt={activeHeroProduct.name}
-                            fill
-                            priority
-                            className="object-cover transition-transform duration-[500ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.025]"
-                            sizes="(max-width: 768px) 100vw, 66vw"
-                          />
-                        )
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center text-sm text-[#3d3a36]/60">
-                          no media available
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col justify-end gap-3 p-5 md:p-7 bg-[#fff1e4]">
-                      <span className="text-[10px] font-bold tracking-widest uppercase text-[#5b6346]">
-                        fresh pick
-                      </span>
-                      <h2 className="text-3xl md:text-5xl font-serif font-light leading-tight text-[#2d2a26]">
-                        {activeHeroProduct.name}
-                      </h2>
-                      <p className="text-sm md:text-base leading-relaxed text-[#3d3a36]/70 line-clamp-3">
-                        {activeHeroProduct.shortDescription}
-                      </p>
-                      <p className="text-xl font-bold text-[#ff6b35]">
-                        {formatInr(activeHeroProduct.price)}
-                      </p>
-                      <div className="flex items-center gap-1 pt-1">
-                        {heroProducts.map((product, index) => (
-                          <span
-                            key={product.id}
-                            className={`h-1.5 rounded-full transition-all ${index === heroIndex % heroProducts.length ? 'w-6 bg-[#2d2a26]' : 'w-2 bg-[#2d2a26]/20'}`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </section>
-        </div>
-
-        <div className="h-1 bg-gradient-to-b from-[#fff1e4] to-[#fbf7f2]" />
-        <div className="bg-[#fbf7f2]">
-          <section className="max-w-6xl mx-auto px-6 md:px-12 py-8">
-            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
-              <div className="w-full max-w-md relative">
-                <div className="relative rounded-md shadow-sm">
-                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                    <svg className="h-5 w-5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.602 10.602z" />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    name="search"
-                    id="search"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="block w-full rounded-lg border border-[#d8cbb8] bg-white py-2 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500"
-                    placeholder="Search for keychain, desk toys & bookmarks..."
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery('')}
-                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  )}
-                </div>
-
-                {searchQuery.trim().length > 0 && (
-                  <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl max-h-80 overflow-y-auto z-50 divide-y divide-slate-100">
-                    {filteredProducts.length > 0 ? (
-                      filteredProducts.map((product) => (
-                        <div
-                          key={product.id}
-                          onClick={() => {
-                            setSelectedProduct(product);
-                            setSearchQuery('');
-                          }}
-                          className="flex items-center gap-3 p-3 hover:bg-slate-50 cursor-pointer transition-colors"
-                        >
-                          {product.media && product.media[0] && product.media[0].type === 'image' && (
-                            <Image
-                              src={getThumbSrc(product.media[0])}
-                              alt={product.name}
-                              width={40}
-                              height={40}
-                              loading="lazy"
-                              className="w-10 h-10 object-cover rounded bg-slate-100 flex-shrink-0"
-                            />
-                          )}
-
-                          <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-semibold text-slate-900 truncate">{product.name}</h4>
-                            <p className="text-xs text-slate-500 truncate">{product.shortDescription}</p>
-                          </div>
-
-                          <div className="text-xs font-bold text-orange-600 whitespace-nowrap">
-                            ₹{product.price}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="p-4 text-center text-sm text-slate-500">
-                        No matching items found.
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="hidden md:flex flex-wrap justify-end gap-2 z-10">
-                {categories.map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setFilter(cat)}
-                    className={`px-4 py-2 rounded-full text-xs font-bold tracking-widest transition-colors duration-150 ${filter === cat ? 'bg-[#2d2a26] text-[#faf8f5]' : 'bg-[#e9e4db] text-[#2d2a26] hover:bg-[#d8d0c5]'}`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-
-              <div className="md:hidden flex flex-wrap gap-2 z-10">
-                {visibleMobileCategories.map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setFilter(cat)}
-                    className={`px-4 py-2 rounded-full text-xs font-bold tracking-widest transition-colors duration-150 ${filter === cat ? 'bg-[#2d2a26] text-[#faf8f5]' : 'bg-[#e9e4db] text-[#2d2a26] hover:bg-[#d8d0c5]'}`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-                {moreMobileCategories.length > 0 && (
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setIsMoreOpen(current => !current)}
-                      className="px-4 py-2 rounded-full text-xs font-bold tracking-widest transition-colors duration-150 bg-[#e9e4db] text-[#2d2a26] hover:bg-[#d8d0c5] inline-flex items-center gap-1"
-                    >
-                      more
-                      <ChevronDown className="h-3.5 w-3.5" />
-                    </button>
-                    {isMoreOpen && (
-                      <div className="absolute right-0 top-full mt-2 min-w-40 rounded-lg border border-[#d8d0c5] bg-[#fbf7f2] shadow-lg overflow-hidden z-40">
-                        {moreMobileCategories.map(cat => (
-                          <button
-                            key={cat}
-                            type="button"
-                            onClick={() => {
-                              setFilter(cat);
-                              setIsMoreOpen(false);
-                            }}
-                            className={`block w-full px-4 py-3 text-left text-xs font-bold tracking-widest transition-colors ${filter === cat ? 'bg-[#2d2a26] text-[#faf8f5]' : 'text-[#2d2a26] hover:bg-[#e9e4db]'}`}
-                          >
-                            {cat}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-
-          <section className="max-w-6xl mx-auto px-6 md:px-12 pb-24 pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-7 lg:gap-x-7 lg:gap-y-8">
-              {filtered.map((item, idx) => {
-                const bgs = [
-                  'bg-[#f0ebe3] text-[#3d3a36]',
-                  'bg-[#ff6b35] text-white',
-                  'bg-[#2d2a26] text-[#faf8f5]',
-                  'bg-[#5b6346] text-white',
-                  'bg-[#e9e4db] text-[#3d3a36]',
-                  'bg-[#d8d0c5] text-[#3d3a36]',
-                ];
-                const bgClass = bgs[idx % bgs.length];
-                const mediaItems = item.media.filter(media => isVisualImage(media) || isVideo(media));
-                const activeMediaIndex = cardMediaIndices[item.id] ?? 0;
-                const activeMedia = mediaItems[activeMediaIndex % Math.max(mediaItems.length, 1)] ?? mediaItems[0];
-                const canCarousel = mediaItems.length > 1;
-                const activeMediaIdentifier = mediaKey(item.id, activeMediaIndex);
-
-                return (
-                  <motion.div
-                    key={`${item.id}-${idx}`}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.15, delay: idx * 0.025 }}
-                    onPointerDown={(event) => {
-                      if (!canCarousel) return;
-                      cardSwipeState.current[item.id] = {
-                        startX: event.clientX,
-                        startY: event.clientY,
-                        swiped: false,
-                        pointerId: event.pointerId,
-                      };
-                    }}
-                    onPointerUp={(event) => {
-                      if (!canCarousel) return;
-                      const state = cardSwipeState.current[item.id];
-                      if (!state || state.pointerId !== event.pointerId) return;
-                      const deltaX = event.clientX - state.startX;
-                      const deltaY = event.clientY - state.startY;
-                      const isHorizontalSwipe = Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY);
-
-                      if (isHorizontalSwipe) {
-                        event.preventDefault();
-                        setCardMediaIndices((current) => ({
-                          ...current,
-                          [item.id]: deltaX < 0
-                            ? (activeMediaIndex + 1) % mediaItems.length
-                            : (activeMediaIndex - 1 + mediaItems.length) % mediaItems.length,
-                        }));
-                        cardSwipeState.current[item.id] = { ...state, swiped: true };
-                      }
-                    }}
-                    onPointerCancel={() => {
-                      if (!canCarousel) return;
-                      delete cardSwipeState.current[item.id];
-                    }}
-                    onClick={() => {
-                      if (cardSwipeState.current[item.id]?.swiped) {
-                        cardSwipeState.current[item.id] = { ...cardSwipeState.current[item.id], swiped: false };
-                        return;
-                      }
-                      setSelectedProduct(item);
-                    }}
-                    style={canCarousel ? { touchAction: 'pan-y' } : undefined}
-                    className="group flex flex-col rounded-[18px] overflow-hidden min-h-[380px] cursor-pointer bg-[#fbf7f2] transition-shadow duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:shadow-[0_14px_36px_rgba(45,42,38,0.12)]"
-                  >
-                    <div className="relative h-[80%] min-h-[300px]">
-                      <div className={`relative h-full w-full overflow-hidden ${bgClass}`}>
-                        {activeMedia ? (
-                          isVideo(activeMedia) ? (
-                            <>
+            <div className="flex flex-col gap-4 md:gap-5">
+              <section aria-label="fresh">
+                <div className="overflow-hidden rounded-[18px] border border-[#d8cbb8]/80 bg-[#fbf7f2]/45 p-1 shadow-[0_1px_0_rgba(255,255,255,0.75),0_16px_34px_rgba(45,42,38,0.06)]">
+                  <AnimatePresence initial={false} mode="wait">
+                    {activeHeroProduct && (
+                      <motion.div
+                        role="button"
+                        tabIndex={0}
+                        key={activeHeroProduct.id}
+                        initial={{ opacity: 0, x: heroDirection > 0 ? 96 : -96 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: heroDirection > 0 ? -96 : 96 }}
+                        transition={{ duration: 0.13, ease: [0.25, 1, 0.5, 1] }}
+                        onMouseEnter={() => setIsHeroPaused(true)}
+                        onMouseLeave={() => setIsHeroPaused(false)}
+                        onClick={() => setSelectedProduct(activeHeroProduct)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            setSelectedProduct(activeHeroProduct);
+                          }
+                        }}
+                        className="group relative w-full text-left overflow-hidden rounded-[15px] bg-[#f0ebe3] min-h-[190px] md:min-h-[220px] grid md:grid-cols-[minmax(0,1.5fr)_minmax(240px,0.8fr)] cursor-pointer transition-shadow duration-[250ms] hover:shadow-[0_14px_30px_rgba(45,42,38,0.12)]"
+                      >
+                        {heroProducts.length > 1 && (
+                          <>
+                            <button
+                              type="button"
+                              aria-label="previous fresh product"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                moveHero(-1);
+                              }}
+                              className="absolute left-3 md:left-4 top-1/2 z-20 h-9 w-9 -translate-y-1/2 rounded-full bg-[#fbf7f2]/80 backdrop-blur border border-[#3d3a36]/10 text-[#2d2a26] shadow-sm flex items-center justify-center transition-colors hover:bg-[#fbf7f2]"
+                            >
+                              <ChevronLeft className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              aria-label="next fresh product"
+                              onClick={(event) => {
+                                event.stopPropagation();
+                                moveHero(1);
+                              }}
+                              className="absolute right-3 md:right-4 top-1/2 z-20 h-9 w-9 -translate-y-1/2 rounded-full bg-[#fbf7f2]/80 backdrop-blur border border-[#3d3a36]/10 text-[#2d2a26] shadow-sm flex items-center justify-center transition-colors hover:bg-[#fbf7f2]"
+                            >
+                              <ChevronRight className="h-4 w-4" />
+                            </button>
+                          </>
+                        )}
+                        <div className="relative min-h-[150px] md:min-h-[220px] overflow-hidden bg-[#e9e4db]">
+                          {activeHeroMedia ? (
+                            isVideo(activeHeroMedia) ? (
                               <LazyVideo
-                                src={getCardSrc(activeMedia)}
+                                src={getCardSrc(activeHeroMedia)}
                                 className="h-full w-full object-cover"
                                 preload="none"
                                 playsInline
@@ -567,88 +324,249 @@ const getDetailSrc = (media: Media) =>
                                 muted
                                 loop
                                 controls={false}
-                                onEnded={() => pauseVideo(activeMediaIdentifier)}
-                                onPause={() => {
-                                  if (!videoRefs.current[activeMediaIdentifier]?.paused) return;
-                                  setPlayingVideos(current => ({ ...current, [activeMediaIdentifier]: false }));
-                                }}
                               />
-                            </>
+                            ) : (
+                              <Image
+                                src={getDetailSrc(activeHeroMedia)}
+                                alt={activeHeroProduct.name}
+                                fill
+                                priority
+                                className="object-cover transition-transform duration-[500ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.025]"
+                                sizes="(max-width: 768px) 100vw, 66vw"
+                              />
+                            )
                           ) : (
-                            <Image
-                              src={getCardSrc(activeMedia)}
-                              alt={item.name}
-                              fill
-                              className="object-cover transition-transform duration-[350ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
-                              referrerPolicy="no-referrer"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                          )
-                        ) : (
-                          <Image
-                            src="https://picsum.photos/seed/fallback/800/800"
-                            alt={item.name}
-                            fill
-                            className="object-cover transition-transform duration-[350ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
-                            referrerPolicy="no-referrer"
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          />
-                        )}
-                      </div>
-                      {canCarousel && (
-                        <div className="absolute inset-x-0 bottom-3 flex items-center justify-between gap-3 px-3">
-                          <button
-                            type="button"
-                            aria-label={`previous image for ${item.name}`}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              setCardMediaIndices((current) => ({
-                                ...current,
-                                [item.id]: (activeMediaIndex - 1 + mediaItems.length) % mediaItems.length,
-                              }));
-                            }}
-                            className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
-                          >
-                            <ChevronLeft className="h-4 w-4" />
-                          </button>
-                          <div className="absolute left-1/2 -translate-x-1/2 inline-flex items-center justify-center gap-1 w-fit pointer-events-none opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150">
-                            {mediaItems.map((_, imageIndex) => (
-                              <span
-                                key={imageIndex}
-                                className={`h-1 rounded-full transition-all shadow-[0_1px_2px_rgba(0,0,0,0.2)] ${imageIndex === activeMediaIndex ? 'w-3.5 bg-[#faf8f5]' : 'w-1.5 bg-[#faf8f5]/60'}`}
-                              />
-                            ))}
-                          </div>
-                          <button
-                            type="button"
-                            aria-label={`next image for ${item.name}`}
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              setCardMediaIndices((current) => ({
-                                ...current,
-                                [item.id]: (activeMediaIndex + 1) % mediaItems.length,
-                              }));
-                            }}
-                            className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
-                          >
-                            <ChevronRight className="h-4 w-4" />
-                          </button>
+                            <div className="absolute inset-0 flex items-center justify-center text-sm text-[#3d3a36]/60">
+                              no media available
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
 
-                    <div className="z-10 flex min-h-[84px] flex-col gap-1 px-4 pt-3 pb-4 overflow-hidden bg-[#fbf7f2] text-[#3d3a36] bg-clip-padding">
-                      <h3 className="text-xl font-serif font-light leading-snug line-clamp-1">{item.name}</h3>
-                      <p className="text-sm leading-snug line-clamp-1 opacity-65 mt-0.5">
-                        {item.shortDescription}
-                      </p>
-                      <p className="text-lg font-bold leading-none text-[#ff6b35] mt-2">
-                        {formatInr(item.price)}
-                      </p>
-                    </div>
-                  </motion.div>
-                );
-              })}
+                        <div className="flex flex-col justify-center gap-2 p-4 md:p-5 bg-[#fff1e4]">
+                          <span className="text-[10px] font-bold tracking-widest uppercase text-[#5b6346]">
+                            fresh from the tray
+                          </span>
+                          <h3 className="text-2xl md:text-3xl font-serif font-light leading-tight text-[#2d2a26] line-clamp-2">
+                            {activeHeroProduct.name}
+                          </h3>
+                          <p className="text-xs md:text-sm leading-relaxed text-[#3d3a36]/70 line-clamp-2">
+                            {activeHeroProduct.shortDescription}
+                          </p>
+                          <div className="flex items-center justify-between gap-3 pt-1">
+                            <p className="text-lg font-bold text-[#ff6b35]">
+                              {formatInr(activeHeroProduct.price)}
+                            </p>
+                            <div className="flex items-center gap-1">
+                              {heroProducts.map((product, index) => (
+                                <span
+                                  key={product.id}
+                                  className={`h-1.5 rounded-full transition-all ${index === heroIndex % heroProducts.length ? 'w-6 bg-[#2d2a26]' : 'w-2 bg-[#2d2a26]/20'}`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </section>
+
+              {featuredConfig?.enabled && (
+                <section aria-label="featured">
+                  <FeaturedAnnouncement config={featuredConfig} fullWidth />
+                </section>
+              )}
+            </div>
+          </section>
+        </div>
+
+        <div className="h-1 bg-gradient-to-b from-[#fff1e4] to-[#fbf7f2]" />
+        <div className="bg-[#fbf7f2]">
+          <section className="max-w-6xl mx-auto flex flex-col gap-8 px-6 py-8 md:flex-row md:px-12 md:pb-24">
+            <CatalogueFilters
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              categories={categories}
+              activeCategory={filter}
+              onCategoryChange={setFilter}
+              priceLimit={activeMaxPrice}
+              maxPrice={catalogueMaxPrice}
+              onPriceLimitChange={setMaxPriceFilter}
+              resultCount={filteredProducts.length}
+              searchPlaceholder="Search keychains, desk toys..."
+            />
+
+            <div className="min-w-0 flex-1">
+              {filteredProducts.length > 0 ? (
+                <div className="grid grid-cols-1 gap-x-7 gap-y-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-11">
+                  {filteredProducts.map((item, idx) => {
+                    const bgs = [
+                      'bg-[#f0ebe3] text-[#3d3a36]',
+                      'bg-[#ff6b35] text-white',
+                      'bg-[#2d2a26] text-[#faf8f5]',
+                      'bg-[#5b6346] text-white',
+                      'bg-[#e9e4db] text-[#3d3a36]',
+                      'bg-[#d8d0c5] text-[#3d3a36]',
+                    ];
+                    const bgClass = bgs[idx % bgs.length];
+                    const mediaItems = item.media.filter(media => isVisualImage(media) || isVideo(media));
+                    const activeMediaIndex = cardMediaIndices[item.id] ?? 0;
+                    const activeMedia = mediaItems[activeMediaIndex % Math.max(mediaItems.length, 1)] ?? mediaItems[0];
+                    const canCarousel = mediaItems.length > 1;
+                    const activeMediaIdentifier = mediaKey(item.id, activeMediaIndex);
+
+                    return (
+                      <motion.div
+                        key={`${item.id}-${idx}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.15, delay: idx * 0.025 }}
+                        onPointerDown={(event) => {
+                          if (!canCarousel) return;
+                          cardSwipeState.current[item.id] = {
+                            startX: event.clientX,
+                            startY: event.clientY,
+                            swiped: false,
+                            pointerId: event.pointerId,
+                          };
+                        }}
+                        onPointerUp={(event) => {
+                          if (!canCarousel) return;
+                          const state = cardSwipeState.current[item.id];
+                          if (!state || state.pointerId !== event.pointerId) return;
+                          const deltaX = event.clientX - state.startX;
+                          const deltaY = event.clientY - state.startY;
+                          const isHorizontalSwipe = Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY);
+
+                          if (isHorizontalSwipe) {
+                            event.preventDefault();
+                            setCardMediaIndices((current) => ({
+                              ...current,
+                              [item.id]: deltaX < 0
+                                ? (activeMediaIndex + 1) % mediaItems.length
+                                : (activeMediaIndex - 1 + mediaItems.length) % mediaItems.length,
+                            }));
+                            cardSwipeState.current[item.id] = { ...state, swiped: true };
+                          }
+                        }}
+                        onPointerCancel={() => {
+                          if (!canCarousel) return;
+                          delete cardSwipeState.current[item.id];
+                        }}
+                        onClick={() => {
+                          if (cardSwipeState.current[item.id]?.swiped) {
+                            cardSwipeState.current[item.id] = { ...cardSwipeState.current[item.id], swiped: false };
+                            return;
+                          }
+                          setSelectedProduct(item);
+                        }}
+                        style={canCarousel ? { touchAction: 'pan-y' } : undefined}
+                        className="group relative flex flex-col rounded-[18px] overflow-visible min-h-[380px] cursor-pointer border border-[#d8cbb8]/70 bg-[#fbf7f2] transition duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(45,42,38,0.11)]"
+                      >
+                        <ProductTagChip tags={item.tags} />
+                        <div className="relative h-[80%] min-h-[300px] overflow-hidden rounded-t-[18px]">
+                          <div className={`relative h-full w-full overflow-hidden ${bgClass}`}>
+                            {activeMedia ? (
+                              isVideo(activeMedia) ? (
+                                <>
+                                  <LazyVideo
+                                    src={getCardSrc(activeMedia)}
+                                    className="h-full w-full object-cover"
+                                    preload="none"
+                                    playsInline
+                                    autoPlay
+                                    muted
+                                    loop
+                                    controls={false}
+                                    onEnded={() => pauseVideo(activeMediaIdentifier)}
+                                    onPause={() => {
+                                      if (!videoRefs.current[activeMediaIdentifier]?.paused) return;
+                                      setPlayingVideos(current => ({ ...current, [activeMediaIdentifier]: false }));
+                                    }}
+                                  />
+                                </>
+                              ) : (
+                                <Image
+                                  src={getCardSrc(activeMedia)}
+                                  alt={item.name}
+                                  fill
+                                  className="object-cover transition-transform duration-[350ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
+                                  referrerPolicy="no-referrer"
+                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                />
+                              )
+                            ) : (
+                              <Image
+                                src="https://picsum.photos/seed/fallback/800/800"
+                                alt={item.name}
+                                fill
+                                className="object-cover transition-transform duration-[350ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
+                                referrerPolicy="no-referrer"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              />
+                            )}
+                          </div>
+                          {canCarousel && (
+                            <div className="absolute inset-x-0 bottom-3 flex items-center justify-between gap-3 px-3">
+                              <button
+                                type="button"
+                                aria-label={`previous image for ${item.name}`}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  setCardMediaIndices((current) => ({
+                                    ...current,
+                                    [item.id]: (activeMediaIndex - 1 + mediaItems.length) % mediaItems.length,
+                                  }));
+                                }}
+                                className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
+                              >
+                                <ChevronLeft className="h-4 w-4" />
+                              </button>
+                              <div className="absolute left-1/2 -translate-x-1/2 inline-flex items-center justify-center gap-1 w-fit pointer-events-none opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150">
+                                {mediaItems.map((_, imageIndex) => (
+                                  <span
+                                    key={imageIndex}
+                                    className={`h-1 rounded-full transition-all shadow-[0_1px_2px_rgba(0,0,0,0.2)] ${imageIndex === activeMediaIndex ? 'w-3.5 bg-[#faf8f5]' : 'w-1.5 bg-[#faf8f5]/60'}`}
+                                  />
+                                ))}
+                              </div>
+                              <button
+                                type="button"
+                                aria-label={`next image for ${item.name}`}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  setCardMediaIndices((current) => ({
+                                    ...current,
+                                    [item.id]: (activeMediaIndex + 1) % mediaItems.length,
+                                  }));
+                                }}
+                                className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
+                              >
+                                <ChevronRight className="h-4 w-4" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="z-10 flex min-h-[84px] flex-col gap-1 overflow-hidden rounded-b-[18px] bg-[#fbf7f2] bg-clip-padding px-4 pt-3 pb-4 text-[#3d3a36]">
+                          <h3 className="text-xl font-serif font-light leading-snug line-clamp-1">{item.name}</h3>
+                          <p className="text-sm leading-snug line-clamp-1 opacity-65 mt-0.5">
+                            {item.shortDescription}
+                          </p>
+                          <p className="text-lg font-bold leading-none text-[#ff6b35] mt-2">
+                            {formatInr(item.price)}
+                          </p>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-[#d8cbb8] bg-white/55 px-6 py-14 text-center text-[#3d3a36]/68">
+                  Nothing baked with those filters yet.
+                </div>
+              )}
             </div>
           </section>
         </div>
@@ -847,6 +765,16 @@ const getDetailSrc = (media: Media) =>
                   <p className="text-base text-[#3d3a36] opacity-80 leading-relaxed mb-6">
                     {selectedProduct.description}
                   </p>
+
+                  {isCustomizableProduct(selectedProduct) && (
+                    <div className="mb-6 rounded-2xl border border-[#edd28a] bg-[#fff7dc] px-4 py-3 text-sm leading-relaxed text-[#795622]">
+                      Made to personalize. Add the name, number, initial, or detail you want when you DM us.
+                    </div>
+                  )}
+                  <RazorpayCheckoutButton
+                    productId={selectedProduct.id}
+                    productName={selectedProduct.name}
+                  />
 
                   {/* <div className="border-y border-[#e9e4db] py-5 mb-8 flex flex-col gap-3">
                     <div className="flex justify-between gap-4">
