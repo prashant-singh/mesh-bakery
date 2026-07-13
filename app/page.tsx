@@ -366,20 +366,21 @@ export default function Page() {
                             </div>
                           </div>
                         </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              </section>
+                      </motion.div >
+                    )
+                    }
+                  </AnimatePresence >
+                </div >
+              </section >
 
               {featuredConfig?.enabled && (
                 <section aria-label="featured">
                   <FeaturedAnnouncement config={featuredConfig} fullWidth />
                 </section>
               )}
-            </div>
-          </section>
-        </div>
+            </div >
+          </section >
+        </div >
 
         <div className="h-1 bg-gradient-to-b from-[#fff1e4] to-[#fbf7f2]" />
         <div className="bg-[#fbf7f2]">
@@ -570,7 +571,7 @@ export default function Page() {
             </div>
           </section>
         </div>
-      </main>
+      </main >
 
       <footer className="w-full bg-slate-900 text-slate-400 py-8 mt-12 border-t border-slate-800">
         <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -806,12 +807,13 @@ export default function Page() {
                     <Instagram className="h-4 w-4" />
                     dm on instagram
                   </a>
-                </div>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+                </div >
+              </motion.div >
+            </motion.div >
+          </motion.div >
+        )
+        }
+      </AnimatePresence >
+    </div >
   );
 }

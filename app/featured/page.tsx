@@ -535,12 +535,13 @@ export default function FeaturedPage() {
                     <Instagram className="h-4 w-4" />
                     dm on instagram
                   </a>
-                </div>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+                </div >
+              </motion.div >
+            </motion.div >
+          </motion.div >
+        )
+        }
+      </AnimatePresence >
+    </div >
   );
 }

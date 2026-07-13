@@ -3,11 +3,21 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ShieldCheck, RefreshCw, Truck, MessageCircle, Instagram } from 'lucide-react';
+import { BASE_PATH } from '@/lib/config';
+import { FeaturedAnnouncement, type FeaturedConfig } from '@/components/FeaturedAnnouncement';
 
 export default function ReturnPolicyPage() {
 	// Hardcoded URLs to match your main configuration
 	const instagramHref = "https://www.instagram.com/meshbakeryprints/";
 	const whatsappHref = `https://wa.me/919999999999?text=${encodeURIComponent("Hi Mesh Bakery! I have a question regarding your returns and refunds policy.")}`;
+	const [featuredConfig, setFeaturedConfig] = React.useState<FeaturedConfig | null>(null);
+
+	React.useEffect(() => {
+		fetch(`${BASE_PATH}/featured-config.json?v=` + Date.now())
+			.then(res => res.json())
+			.then(data => setFeaturedConfig(data))
+			.catch(err => console.error('Failed to load featured config', err));
+	}, []);
 
 	return (
 		<div className="min-h-screen flex flex-col bg-[#fbf7f2] font-sans selection:bg-[#ff6b35]/20">
@@ -32,6 +42,8 @@ export default function ReturnPolicyPage() {
 				</div>
 				<div />
 			</header>
+
+			<FeaturedAnnouncement config={featuredConfig} className="pb-4 md:pb-6" />
 
 			{/* Main Content Area */}
 			<main className="flex-1 max-w-3xl mx-auto w-full px-6 pb-24 pt-4 md:pt-8">
