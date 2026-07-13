@@ -9,6 +9,13 @@ import { BASE_PATH, withBasePath } from '@/lib/config';
 import type { FeaturedConfig } from '@/components/FeaturedAnnouncement';
 import { ProductTagChip, type ProductTag } from '@/components/ProductTagChip';
 import { CatalogueFilters } from '@/components/CatalogueFilters';
+import {
+  areRequiredCustomizationFieldsFilled,
+  buildCustomizationPayload,
+  CustomizationForm,
+  type CustomizableProperty,
+  type CustomizationValues,
+} from '@/components/CustomizationForm';
 
 type Media = {
   type: 'image' | 'video';
@@ -30,6 +37,7 @@ type Product = {
   shortDescription: string;
   description: string;
   featured?: boolean;
+  customizableProperties?: CustomizableProperty[];
 };
 
 type OfferBanner = {
@@ -79,6 +87,7 @@ export default function FeaturedPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [maxPriceFilter, setMaxPriceFilter] = useState<number | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [customizationValuesByProduct, setCustomizationValuesByProduct] = useState<Record<string, CustomizationValues>>({});
   const [cardMediaIndices, setCardMediaIndices] = useState<Record<string, number>>({});
   const cardSwipeState = React.useRef<Record<string, { startX: number; startY: number; swiped: boolean; pointerId: number | null }>>({});
   const videoRefs = React.useRef<Record<string, HTMLVideoElement | null>>({});
@@ -136,9 +145,19 @@ export default function FeaturedPage() {
   const getDetailSrc = (media: Media) => withBasePath(media.detailUrl ?? media.cardUrl ?? media.url);
   const mediaKey = (productId: string, mediaIndex: number) => `${productId}-${mediaIndex}`;
   const getTagName = (tag: ProductTag) => typeof tag === 'string' ? tag : tag.name;
-  const isCustomizableProduct = (product: Product) =>
-    product.tags.some(tag => getTagName(tag).toLowerCase() === 'customizable');
-  const instagramHref = 'https://www.instagram.com/meshbakeryprints/';
+  const instagramHref = 'https://ig.me/m/meshbakeryprints';
+  const selectedCustomizationValues = selectedProduct
+    ? customizationValuesByProduct[selectedProduct.id] ?? {}
+    : {};
+  const isSelectedCustomizationReady = selectedProduct
+    ? areRequiredCustomizationFieldsFilled(selectedProduct.customizableProperties, selectedCustomizationValues)
+    : true;
+  const selectedCustomizationPayload = selectedProduct
+    ? buildCustomizationPayload(selectedProduct.name, selectedProduct.id, selectedProduct.customizableProperties, selectedCustomizationValues)
+    : '';
+  const selectedInstagramHref = selectedProduct
+    ? `${instagramHref}?text=${encodeURIComponent(selectedCustomizationPayload)}`
+    : instagramHref;
   const formatInr = (value: number) =>
     new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -296,7 +315,7 @@ export default function FeaturedPage() {
                         setSelectedProduct(item);
                       }}
                       style={canCarousel ? { touchAction: 'pan-y' } : undefined}
-                      className="group relative flex flex-col rounded-[18px] overflow-visible min-h-[380px] cursor-pointer border border-[#d8cbb8]/70 bg-[#fbf7f2] transition duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(45,42,38,0.11)]"
+                      className="group relative flex w-full max-w-[430px] justify-self-center flex-col rounded-[18px] overflow-visible min-h-[380px] cursor-pointer border border-[#d8cbb8]/70 bg-[#fbf7f2] transition duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(45,42,38,0.11)] md:max-w-none md:justify-self-auto"
                     >
                       <ProductTagChip tags={item.tags} />
                       <div className="relative h-[80%] min-h-[300px] overflow-hidden rounded-t-[18px]">
@@ -515,17 +534,29 @@ export default function FeaturedPage() {
                     {selectedProduct.description}
                   </p>
 
-                  {isCustomizableProduct(selectedProduct) && (
-                    <div className="mb-6 rounded-2xl border border-[#edd28a] bg-[#fff7dc] px-4 py-3 text-sm leading-relaxed text-[#795622]">
-                      Made to personalize. Add the name, number, initial, or detail you want when you DM us.
-                    </div>
-                  )}
+                  <CustomizationForm
+                    fields={selectedProduct.customizableProperties}
+                    values={selectedCustomizationValues}
+                    onChange={(key, value) => setCustomizationValuesByProduct(current => ({
+                      ...current,
+                      [selectedProduct.id]: {
+                        ...(current[selectedProduct.id] ?? {}),
+                        [key]: value,
+                      },
+                    }))}
+                  />
 
                   <a
-                    href={instagramHref}
+                    href={isSelectedCustomizationReady ? selectedInstagramHref : undefined}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-3 w-full bg-[#2d2a26] text-[#faf8f5] h-14 rounded-full flex items-center justify-center gap-2 text-sm font-bold tracking-widest hover:bg-[#1f1c19] transition-colors duration-150"
+                    aria-disabled={!isSelectedCustomizationReady}
+                    onClick={(event) => {
+                      if (!isSelectedCustomizationReady) {
+                        event.preventDefault();
+                      }
+                    }}
+                    className={`mt-3 w-full h-14 rounded-full flex items-center justify-center gap-2 text-sm font-bold tracking-widest transition-colors duration-150 ${isSelectedCustomizationReady ? 'bg-[#2d2a26] text-[#faf8f5] hover:bg-[#1f1c19]' : 'pointer-events-none bg-[#d8cbb8] text-[#3d3a36]/45 cursor-not-allowed'}`}
                   >
                     <Instagram className="h-4 w-4" />
                     dm on instagram

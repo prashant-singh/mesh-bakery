@@ -16,6 +16,29 @@
     "size": "10cm x 5cm x 5cm",
     "shortDescription": "Your ride, your style, your keychain. ⚡ Get your custom number plate or explore our other unique designs today.",
     "description": "Buy pack of customizable keychains, One for each vehicle and for each person in your house.",
+    "customizableProperties": [
+      {
+        "key": "name",
+        "label": "Name",
+        "type": "text",
+        "required": true,
+        "placeholder": "e.g. Harshit"
+      },
+      {
+        "key": "licenseNumber",
+        "label": "License number",
+        "type": "text",
+        "required": true,
+        "placeholder": "e.g. MH 12 AB 1234"
+      },
+      {
+        "key": "color",
+        "label": "Color",
+        "type": "text",
+        "required": false,
+        "placeholder": "optional"
+      }
+    ],
     "featured": true
   },
   {
@@ -35,6 +58,36 @@
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "The ultimate accessory for the iron obsessed. 🏋️‍♂️",
     "description": "Fully Customizable: Add your name, lift type (Deadlift, Squat, Bench, etc.), and PR weight.",
+    "customizableProperties": [
+      {
+        "key": "name",
+        "label": "Name",
+        "type": "text",
+        "required": true,
+        "placeholder": "e.g. Harshit"
+      },
+      {
+        "key": "liftType",
+        "label": "Lift type",
+        "type": "text",
+        "required": true,
+        "placeholder": "e.g. Deadlift"
+      },
+      {
+        "key": "barWeight",
+        "label": "Bar weight",
+        "type": "text",
+        "required": true,
+        "placeholder": "e.g. 120 kg"
+      },
+      {
+        "key": "color",
+        "label": "Color",
+        "type": "text",
+        "required": false,
+        "placeholder": "optional"
+      }
+    ],
     "featured": true
   },
   {
@@ -54,6 +107,29 @@
     "size": "8cm x 8cm x 9cm",
     "shortDescription": "Make your daily carry unique with this customizable initial letter keychain.",
     "description": "Add a personal touch to your everyday gear with this customizable letter keychain. Pick your initial to create a sleek, custom accessory that keeps your keys secure while adding a unique, tailormade statement to your favorite backpack or bag.",
+    "customizableProperties": [
+      {
+        "key": "initial",
+        "label": "Initial",
+        "type": "text",
+        "required": true,
+        "placeholder": "e.g. H"
+      },
+      {
+        "key": "name",
+        "label": "Name",
+        "type": "text",
+        "required": false,
+        "placeholder": "optional"
+      },
+      {
+        "key": "color",
+        "label": "Color",
+        "type": "text",
+        "required": false,
+        "placeholder": "optional"
+      }
+    ],
     "featured": true
   },
   {
