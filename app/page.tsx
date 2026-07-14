@@ -9,7 +9,7 @@ import { withBasePath } from '@/lib/config';
 import { FeaturedAnnouncement, type FeaturedConfig } from '@/components/FeaturedAnnouncement';
 import { ProductTagChip, type ProductTag } from '@/components/ProductTagChip';
 import { CatalogueFilters } from '@/components/CatalogueFilters';
-import { RazorpayCheckoutButton } from '@/components/RazorpayCheckoutButton';
+import { AddToCartButton } from '@/components/AddToCartButton';
 
 type Media = {
   type: 'image' | 'video';
@@ -772,10 +772,14 @@ export default function Page() {
                       Made to personalize. Add the name, number, initial, or detail you want when you DM us.
                     </div>
                   )}
-                  <RazorpayCheckoutButton
-                    productId={selectedProduct.id}
-                    productName={selectedProduct.name}
-                  />
+                  <AddToCartButton product={{
+                    id: selectedProduct.id,
+                    name: selectedProduct.name,
+                    price: selectedProduct.price,
+                    imageUrl: selectedProduct.media.find(media => isVisualImage(media))
+                      ? getThumbSrc(selectedProduct.media.find(media => isVisualImage(media))!)
+                      : undefined,
+                  }} />
 
                   {/* <div className="border-y border-[#e9e4db] py-5 mb-8 flex flex-col gap-3">
                     <div className="flex justify-between gap-4">
