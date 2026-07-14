@@ -9,13 +9,7 @@ import { BASE_PATH, withBasePath } from '@/lib/config';
 import type { FeaturedConfig } from '@/components/FeaturedAnnouncement';
 import { ProductTagChip, type ProductTag } from '@/components/ProductTagChip';
 import { CatalogueFilters } from '@/components/CatalogueFilters';
-import {
-  areRequiredCustomizationFieldsFilled,
-  buildCustomizationPayload,
-  CustomizationForm,
-  type CustomizableProperty,
-  type CustomizationValues,
-} from '@/components/CustomizationForm';
+import { AddToCartButton } from '@/components/AddToCartButton';
 
 type Media = {
   type: 'image' | 'video';
@@ -37,7 +31,6 @@ type Product = {
   shortDescription: string;
   description: string;
   featured?: boolean;
-  customizableProperties?: CustomizableProperty[];
 };
 
 type OfferBanner = {
@@ -87,7 +80,6 @@ export default function FeaturedPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [maxPriceFilter, setMaxPriceFilter] = useState<number | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [customizationValuesByProduct, setCustomizationValuesByProduct] = useState<Record<string, CustomizationValues>>({});
   const [cardMediaIndices, setCardMediaIndices] = useState<Record<string, number>>({});
   const cardSwipeState = React.useRef<Record<string, { startX: number; startY: number; swiped: boolean; pointerId: number | null }>>({});
   const videoRefs = React.useRef<Record<string, HTMLVideoElement | null>>({});
@@ -145,19 +137,9 @@ export default function FeaturedPage() {
   const getDetailSrc = (media: Media) => withBasePath(media.detailUrl ?? media.cardUrl ?? media.url);
   const mediaKey = (productId: string, mediaIndex: number) => `${productId}-${mediaIndex}`;
   const getTagName = (tag: ProductTag) => typeof tag === 'string' ? tag : tag.name;
-  const instagramHref = 'https://ig.me/m/meshbakeryprints';
-  const selectedCustomizationValues = selectedProduct
-    ? customizationValuesByProduct[selectedProduct.id] ?? {}
-    : {};
-  const isSelectedCustomizationReady = selectedProduct
-    ? areRequiredCustomizationFieldsFilled(selectedProduct.customizableProperties, selectedCustomizationValues)
-    : true;
-  const selectedCustomizationPayload = selectedProduct
-    ? buildCustomizationPayload(selectedProduct.name, selectedProduct.id, selectedProduct.customizableProperties, selectedCustomizationValues)
-    : '';
-  const selectedInstagramHref = selectedProduct
-    ? `${instagramHref}?text=${encodeURIComponent(selectedCustomizationPayload)}`
-    : instagramHref;
+  const isCustomizableProduct = (product: Product) =>
+    product.tags.some(tag => getTagName(tag).toLowerCase() === 'customizable');
+  const instagramHref = 'https://www.instagram.com/meshbakeryprints/';
   const formatInr = (value: number) =>
     new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -254,159 +236,159 @@ export default function FeaturedPage() {
                 {filteredProducts.length > 0 ? (
                   <div className="grid grid-cols-1 gap-x-7 gap-y-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-x-8 lg:gap-y-11">
                     {filteredProducts.map((item, idx) => {
-                  const bgs = [
-                    'bg-[#f0ebe3] text-[#3d3a36]',
-                    'bg-[#ff6b35] text-white',
-                    'bg-[#2d2a26] text-[#faf8f5]',
-                    'bg-[#5b6346] text-white',
-                    'bg-[#e9e4db] text-[#3d3a36]',
-                    'bg-[#d8d0c5] text-[#3d3a36]',
-                  ];
-                  const bgClass = bgs[idx % bgs.length];
-                  const mediaItems = item.media.filter(media => isVisualImage(media) || isVideo(media));
-                  const activeMediaIndex = cardMediaIndices[item.id] ?? 0;
-                  const activeMedia = mediaItems[activeMediaIndex % Math.max(mediaItems.length, 1)] ?? mediaItems[0];
-                  const canCarousel = mediaItems.length > 1;
-                  const activeMediaIdentifier = mediaKey(item.id, activeMediaIndex);
+                      const bgs = [
+                        'bg-[#f0ebe3] text-[#3d3a36]',
+                        'bg-[#ff6b35] text-white',
+                        'bg-[#2d2a26] text-[#faf8f5]',
+                        'bg-[#5b6346] text-white',
+                        'bg-[#e9e4db] text-[#3d3a36]',
+                        'bg-[#d8d0c5] text-[#3d3a36]',
+                      ];
+                      const bgClass = bgs[idx % bgs.length];
+                      const mediaItems = item.media.filter(media => isVisualImage(media) || isVideo(media));
+                      const activeMediaIndex = cardMediaIndices[item.id] ?? 0;
+                      const activeMedia = mediaItems[activeMediaIndex % Math.max(mediaItems.length, 1)] ?? mediaItems[0];
+                      const canCarousel = mediaItems.length > 1;
+                      const activeMediaIdentifier = mediaKey(item.id, activeMediaIndex);
 
-                  return (
-                    <motion.div
-                      key={`${item.id}-${idx}`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.15, delay: idx * 0.025 }}
-                      onPointerDown={(event) => {
-                        if (!canCarousel) return;
-                        cardSwipeState.current[item.id] = {
-                          startX: event.clientX,
-                          startY: event.clientY,
-                          swiped: false,
-                          pointerId: event.pointerId,
-                        };
-                      }}
-                      onPointerUp={(event) => {
-                        if (!canCarousel) return;
-                        const state = cardSwipeState.current[item.id];
-                        if (!state || state.pointerId !== event.pointerId) return;
-                        const deltaX = event.clientX - state.startX;
-                        const deltaY = event.clientY - state.startY;
-                        const isHorizontalSwipe = Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY);
+                      return (
+                        <motion.div
+                          key={`${item.id}-${idx}`}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.15, delay: idx * 0.025 }}
+                          onPointerDown={(event) => {
+                            if (!canCarousel) return;
+                            cardSwipeState.current[item.id] = {
+                              startX: event.clientX,
+                              startY: event.clientY,
+                              swiped: false,
+                              pointerId: event.pointerId,
+                            };
+                          }}
+                          onPointerUp={(event) => {
+                            if (!canCarousel) return;
+                            const state = cardSwipeState.current[item.id];
+                            if (!state || state.pointerId !== event.pointerId) return;
+                            const deltaX = event.clientX - state.startX;
+                            const deltaY = event.clientY - state.startY;
+                            const isHorizontalSwipe = Math.abs(deltaX) > 40 && Math.abs(deltaX) > Math.abs(deltaY);
 
-                        if (isHorizontalSwipe) {
-                          event.preventDefault();
-                          setCardMediaIndices((current) => ({
-                            ...current,
-                            [item.id]: deltaX < 0
-                              ? (activeMediaIndex + 1) % mediaItems.length
-                              : (activeMediaIndex - 1 + mediaItems.length) % mediaItems.length,
-                          }));
-                          cardSwipeState.current[item.id] = { ...state, swiped: true };
-                        }
-                      }}
-                      onPointerCancel={() => {
-                        if (!canCarousel) return;
-                        delete cardSwipeState.current[item.id];
-                      }}
-                      onClick={() => {
-                        if (cardSwipeState.current[item.id]?.swiped) {
-                          cardSwipeState.current[item.id] = { ...cardSwipeState.current[item.id], swiped: false };
-                          return;
-                        }
-                        setSelectedProduct(item);
-                      }}
-                      style={canCarousel ? { touchAction: 'pan-y' } : undefined}
-                      className="group relative flex w-full max-w-[430px] justify-self-center flex-col rounded-[18px] overflow-visible min-h-[380px] cursor-pointer border border-[#d8cbb8]/70 bg-[#fbf7f2] transition duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(45,42,38,0.11)] md:max-w-none md:justify-self-auto"
-                    >
-                      <ProductTagChip tags={item.tags} />
-                      <div className="relative h-[80%] min-h-[300px] overflow-hidden rounded-t-[18px]">
-                        <div className={`relative h-full w-full overflow-hidden ${bgClass}`}>
-                          {activeMedia ? (
-                            isVideo(activeMedia) ? (
-                              <LazyVideo
-                                src={getCardSrc(activeMedia)}
-                                className="h-full w-full object-cover"
-                                preload="none"
-                                playsInline
-                                autoPlay
-                                muted
-                                loop
-                                controls={false}
-                                onEnded={() => pauseVideo(activeMediaIdentifier)}
-                              />
-                            ) : (
-                              <Image
-                                src={getCardSrc(activeMedia)}
-                                alt={item.name}
-                                fill
-                                className="object-cover transition-transform duration-[350ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
-                                referrerPolicy="no-referrer"
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                              />
-                            )
-                          ) : (
-                            <Image
-                              src="https://picsum.photos/seed/fallback/800/800"
-                              alt={item.name}
-                              fill
-                              className="object-cover transition-transform duration-[350ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
-                              referrerPolicy="no-referrer"
-                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                            />
-                          )}
-                        </div>
-                        {canCarousel && (
-                          <div className="absolute inset-x-0 bottom-3 flex items-center justify-between gap-3 px-3">
-                            <button
-                              type="button"
-                              aria-label={`previous image for ${item.name}`}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setCardMediaIndices((current) => ({
-                                  ...current,
-                                  [item.id]: (activeMediaIndex - 1 + mediaItems.length) % mediaItems.length,
-                                }));
-                              }}
-                              className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
-                            >
-                              <ChevronLeft className="h-4 w-4" />
-                            </button>
-                            <div className="absolute left-1/2 -translate-x-1/2 inline-flex items-center justify-center gap-1 w-fit pointer-events-none opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150">
-                              {mediaItems.map((_, imageIndex) => (
-                                <span
-                                  key={imageIndex}
-                                  className={`h-1 rounded-full transition-all shadow-[0_1px_2px_rgba(0,0,0,0.2)] ${imageIndex === activeMediaIndex ? 'w-3.5 bg-[#faf8f5]' : 'w-1.5 bg-[#faf8f5]/60'}`}
+                            if (isHorizontalSwipe) {
+                              event.preventDefault();
+                              setCardMediaIndices((current) => ({
+                                ...current,
+                                [item.id]: deltaX < 0
+                                  ? (activeMediaIndex + 1) % mediaItems.length
+                                  : (activeMediaIndex - 1 + mediaItems.length) % mediaItems.length,
+                              }));
+                              cardSwipeState.current[item.id] = { ...state, swiped: true };
+                            }
+                          }}
+                          onPointerCancel={() => {
+                            if (!canCarousel) return;
+                            delete cardSwipeState.current[item.id];
+                          }}
+                          onClick={() => {
+                            if (cardSwipeState.current[item.id]?.swiped) {
+                              cardSwipeState.current[item.id] = { ...cardSwipeState.current[item.id], swiped: false };
+                              return;
+                            }
+                            setSelectedProduct(item);
+                          }}
+                          style={canCarousel ? { touchAction: 'pan-y' } : undefined}
+                          className="group relative flex flex-col rounded-[18px] overflow-visible min-h-[380px] cursor-pointer border border-[#d8cbb8]/70 bg-[#fbf7f2] transition duration-[250ms] ease-[cubic-bezier(0.25,1,0.5,1)] hover:-translate-y-1 hover:shadow-[0_16px_34px_rgba(45,42,38,0.11)]"
+                        >
+                          <ProductTagChip tags={item.tags} />
+                          <div className="relative h-[80%] min-h-[300px] overflow-hidden rounded-t-[18px]">
+                            <div className={`relative h-full w-full overflow-hidden ${bgClass}`}>
+                              {activeMedia ? (
+                                isVideo(activeMedia) ? (
+                                  <LazyVideo
+                                    src={getCardSrc(activeMedia)}
+                                    className="h-full w-full object-cover"
+                                    preload="none"
+                                    playsInline
+                                    autoPlay
+                                    muted
+                                    loop
+                                    controls={false}
+                                    onEnded={() => pauseVideo(activeMediaIdentifier)}
+                                  />
+                                ) : (
+                                  <Image
+                                    src={getCardSrc(activeMedia)}
+                                    alt={item.name}
+                                    fill
+                                    className="object-cover transition-transform duration-[350ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
+                                    referrerPolicy="no-referrer"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                  />
+                                )
+                              ) : (
+                                <Image
+                                  src="https://picsum.photos/seed/fallback/800/800"
+                                  alt={item.name}
+                                  fill
+                                  className="object-cover transition-transform duration-[350ms] ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-[1.03]"
+                                  referrerPolicy="no-referrer"
+                                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
-                              ))}
+                              )}
                             </div>
-                            <button
-                              type="button"
-                              aria-label={`next image for ${item.name}`}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                setCardMediaIndices((current) => ({
-                                  ...current,
-                                  [item.id]: (activeMediaIndex + 1) % mediaItems.length,
-                                }));
-                              }}
-                              className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
-                            >
-                              <ChevronRight className="h-4 w-4" />
-                            </button>
+                            {canCarousel && (
+                              <div className="absolute inset-x-0 bottom-3 flex items-center justify-between gap-3 px-3">
+                                <button
+                                  type="button"
+                                  aria-label={`previous image for ${item.name}`}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setCardMediaIndices((current) => ({
+                                      ...current,
+                                      [item.id]: (activeMediaIndex - 1 + mediaItems.length) % mediaItems.length,
+                                    }));
+                                  }}
+                                  className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
+                                >
+                                  <ChevronLeft className="h-4 w-4" />
+                                </button>
+                                <div className="absolute left-1/2 -translate-x-1/2 inline-flex items-center justify-center gap-1 w-fit pointer-events-none opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-150">
+                                  {mediaItems.map((_, imageIndex) => (
+                                    <span
+                                      key={imageIndex}
+                                      className={`h-1 rounded-full transition-all shadow-[0_1px_2px_rgba(0,0,0,0.2)] ${imageIndex === activeMediaIndex ? 'w-3.5 bg-[#faf8f5]' : 'w-1.5 bg-[#faf8f5]/60'}`}
+                                    />
+                                  ))}
+                                </div>
+                                <button
+                                  type="button"
+                                  aria-label={`next image for ${item.name}`}
+                                  onClick={(event) => {
+                                    event.stopPropagation();
+                                    setCardMediaIndices((current) => ({
+                                      ...current,
+                                      [item.id]: (activeMediaIndex + 1) % mediaItems.length,
+                                    }));
+                                  }}
+                                  className="h-8 w-8 text-white flex items-center justify-center transition-opacity transition-colors duration-150 shrink-0 opacity-100 md:opacity-0 md:pointer-events-none md:group-hover:opacity-100 md:group-hover:pointer-events-auto drop-shadow-[0_1px_2px_rgba(0,0,0,0.45)]"
+                                >
+                                  <ChevronRight className="h-4 w-4" />
+                                </button>
+                              </div>
+                            )}
                           </div>
-                        )}
-                      </div>
 
-                      <div className="z-10 flex min-h-[84px] flex-col gap-1 overflow-hidden rounded-b-[18px] bg-[#fbf7f2] bg-clip-padding px-4 pt-3 pb-4 text-[#3d3a36]">
-                        <h3 className="text-xl font-serif font-light leading-snug line-clamp-1">{item.name}</h3>
-                        <p className="text-sm leading-snug line-clamp-1 opacity-65 mt-0.5">
-                          {item.shortDescription}
-                        </p>
-                        <p className="text-lg font-bold leading-none text-[#ff6b35] mt-2">
-                          {formatInr(item.price)}
-                        </p>
-                      </div>
-                    </motion.div>
-                  );
+                          <div className="z-10 flex min-h-[84px] flex-col gap-1 overflow-hidden rounded-b-[18px] bg-[#fbf7f2] bg-clip-padding px-4 pt-3 pb-4 text-[#3d3a36]">
+                            <h3 className="text-xl font-serif font-light leading-snug line-clamp-1">{item.name}</h3>
+                            <p className="text-sm leading-snug line-clamp-1 opacity-65 mt-0.5">
+                              {item.shortDescription}
+                            </p>
+                            <p className="text-lg font-bold leading-none text-[#ff6b35] mt-2">
+                              {formatInr(item.price)}
+                            </p>
+                          </div>
+                        </motion.div>
+                      );
                     })}
                   </div>
                 ) : (
@@ -534,39 +516,36 @@ export default function FeaturedPage() {
                     {selectedProduct.description}
                   </p>
 
-                  <CustomizationForm
-                    fields={selectedProduct.customizableProperties}
-                    values={selectedCustomizationValues}
-                    onChange={(key, value) => setCustomizationValuesByProduct(current => ({
-                      ...current,
-                      [selectedProduct.id]: {
-                        ...(current[selectedProduct.id] ?? {}),
-                        [key]: value,
-                      },
-                    }))}
-                  />
+                  {isCustomizableProduct(selectedProduct) && (
+                    <div className="mb-6 rounded-2xl border border-[#edd28a] bg-[#fff7dc] px-4 py-3 text-sm leading-relaxed text-[#795622]">
+                      Made to personalize. Add the name, number, initial, or detail you want when you DM us.
+                    </div>
+                  )}
+                  <AddToCartButton product={{
+                    id: selectedProduct.id,
+                    name: selectedProduct.name,
+                    price: selectedProduct.price,
+                    imageUrl: selectedProduct.media.find(media => isVisualImage(media))
+                      ? getThumbSrc(selectedProduct.media.find(media => isVisualImage(media))!)
+                      : undefined,
+                  }} />
 
                   <a
-                    href={isSelectedCustomizationReady ? selectedInstagramHref : undefined}
+                    href={instagramHref}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-disabled={!isSelectedCustomizationReady}
-                    onClick={(event) => {
-                      if (!isSelectedCustomizationReady) {
-                        event.preventDefault();
-                      }
-                    }}
-                    className={`mt-3 w-full h-14 rounded-full flex items-center justify-center gap-2 text-sm font-bold tracking-widest transition-colors duration-150 ${isSelectedCustomizationReady ? 'bg-[#2d2a26] text-[#faf8f5] hover:bg-[#1f1c19]' : 'pointer-events-none bg-[#d8cbb8] text-[#3d3a36]/45 cursor-not-allowed'}`}
+                    className="mt-3 w-full bg-[#2d2a26] text-[#faf8f5] h-14 rounded-full flex items-center justify-center gap-2 text-sm font-bold tracking-widest hover:bg-[#1f1c19] transition-colors duration-150"
                   >
                     <Instagram className="h-4 w-4" />
                     dm on instagram
                   </a>
-                </div>
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+                </div >
+              </motion.div >
+            </motion.div >
+          </motion.div >
+        )
+        }
+      </AnimatePresence >
+    </div >
   );
 }
