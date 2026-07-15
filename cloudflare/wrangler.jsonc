@@ -4,10 +4,10 @@
 	"main": "src/index.ts",
 	"compatibility_date": "2026-07-10",
 	"vars": {
-		"ALLOWED_ORIGINS": "https://prashant-singh.github.io,http://localhost:3000",
+		"ALLOWED_ORIGINS": "https://meshbakery.com,https://www.meshbakery.com,https://prashant-singh.github.io,http://localhost:3000",
 		"PICKUP_PINCODE": "380009",
 		"DELHIVERY_API_BASE_URL": "https://track.delhivery.com",
-		"PUBLIC_STOREFRONT_URL": "https://prashant-singh.github.io/mesh-bakery"
+		"PUBLIC_STOREFRONT_URL": "https://meshbakery.com"
 	},
 	"d1_databases": [
 		{
