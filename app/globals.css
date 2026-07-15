@@ -11,3 +11,112 @@
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
 }
+
+.featured-announcement {
+  --featured-accent: #ffb38f;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--featured-accent) 28%, #8a4b27), #a95d32 46%, #7b4328),
+    #a95d32;
+}
+
+.featured-announcement::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(115deg, rgba(255, 247, 220, 0.18) 0 1px, transparent 1px 12px),
+    linear-gradient(100deg, transparent 0 38%, rgba(255, 230, 178, 0.18) 48%, transparent 58%);
+  background-size: 56px 56px, 160px 100%;
+  opacity: 0.64;
+  animation: featured-pattern-scroll 8s linear infinite;
+}
+
+.featured-announcement--shimmer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  translate: -120% 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 242, 199, 0.18) 50%, transparent 65%);
+  animation: featured-shimmer 7s ease-in-out infinite;
+}
+
+.featured-announcement--pulse {
+  animation: featured-pulse 7s ease-in-out infinite;
+}
+
+.featured-announcement--arrow .featured-announcement__arrow {
+  animation: featured-arrow 2.4s ease-in-out infinite;
+}
+
+.featured-announcement:is(:hover, :focus-visible),
+.featured-announcement:is(:hover, :focus-visible)::before,
+.featured-announcement:is(:hover, :focus-visible)::after,
+.featured-announcement:is(:hover, :focus-visible) .featured-announcement__arrow {
+  animation-play-state: paused;
+}
+
+@keyframes featured-pattern-scroll {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 112px 56px, 320px 0;
+  }
+}
+
+@keyframes featured-shimmer {
+  0%, 62% {
+    translate: -120% 0;
+  }
+  82%, 100% {
+    translate: 120% 0;
+  }
+}
+
+@keyframes featured-pulse {
+  0%, 100% {
+    box-shadow: 0 1px 2px rgba(122, 67, 40, 0.08), inset 0 0 0 rgba(255, 212, 128, 0);
+  }
+  50% {
+    box-shadow: 0 12px 28px rgba(122, 67, 40, 0.14), inset 0 0 22px rgba(255, 212, 128, 0.18);
+  }
+}
+
+@keyframes featured-arrow {
+  0%, 54%, 100% {
+    translate: 0 0;
+  }
+  68% {
+    translate: 7px 0;
+  }
+  82% {
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .featured-announcement::after,
+  .featured-announcement--shimmer::before,
+  .featured-announcement--pulse,
+  .featured-announcement--arrow .featured-announcement__arrow {
+    animation: none;
+  }
+}
+
+a[href], button:not(:disabled), [role="button"], label[for], select:not(:disabled), input[type="checkbox"]:not(:disabled), input[type="radio"]:not(:disabled) {
+  cursor: pointer;
+}
+
+@keyframes shipping-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-25%); }
+}
+
+.shipping-marquee-track {
+  animation: shipping-marquee 18s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shipping-marquee-track { animation: none; }
+}
