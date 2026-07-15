@@ -73,7 +73,7 @@ export function CatalogueFilters({
           id={`catalogue-price-${idSuffix}`}
           min={0}
           max={normalizedMaxPrice}
-          step={10}
+          step={1}
           value={normalizedPriceLimit}
           onChange={(event) => onPriceLimitChange(Number(event.target.value))}
           disabled={normalizedMaxPrice === 0}

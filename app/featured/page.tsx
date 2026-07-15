@@ -12,7 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { BASE_PATH, withBasePath } from "@/lib/config";
+import { withBasePath } from "@/lib/config";
 import { productPath } from "@/lib/productRoutes";
 import type { FeaturedConfig } from "@/components/FeaturedAnnouncement";
 import { fetchFeaturedConfig } from "@/lib/featuredConfig";
@@ -52,15 +52,6 @@ type Product = {
   fifa_featured?: boolean;
   customizableProperties?: CustomizableProperty[];
   active?: boolean;
-};
-
-type OfferBanner = {
-  id: string;
-  text: string;
-  link?: string;
-  linkText?: string;
-  variant?: "primary" | "secondary" | "alert";
-  isActive: boolean;
 };
 
 type LazyVideoProps = React.VideoHTMLAttributes<HTMLVideoElement> & {
@@ -111,7 +102,6 @@ export default function FeaturedPage() {
     Record<string, number>
   >({});
   const [inventorySettingsLoaded, setInventorySettingsLoaded] = React.useState(false);
-  const [offers, setOffers] = React.useState<OfferBanner[]>([]);
   const [featuredConfig, setFeaturedConfig] =
     React.useState<FeaturedConfig | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -162,13 +152,6 @@ export default function FeaturedPage() {
     fetchFeaturedConfig()
       .then((data) => setFeaturedConfig(data))
       .catch((err) => console.error("Failed to load featured config", err));
-  }, []);
-
-  React.useEffect(() => {
-    fetch(`${BASE_PATH}/offer.json?v=` + Date.now())
-      .then((res) => res.json())
-      .then((data) => setOffers(data))
-      .catch((err) => console.error("Failed to load offer banners", err));
   }, []);
 
   React.useEffect(() => {
@@ -276,7 +259,6 @@ export default function FeaturedPage() {
         ))
     );
   });
-  const activeOffers = offers.filter((offer) => offer.isActive);
   const similarProducts = selectedProduct
     ? catalogue
         .filter((product) => product.id !== selectedProduct.id)
@@ -297,18 +279,6 @@ export default function FeaturedPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#fbf7f2] font-sans selection:bg-[#ff6b35]/20">
-      {activeOffers.length > 0 && (
-        <div className="w-full px-4 py-2 text-center text-sm md:text-base font-semibold text-[#8a3f1f] bg-[#ffd7bf]">
-          <div className="flex items-center justify-center gap-3 md:gap-5 flex-wrap">
-            {activeOffers.map((offer, index) => (
-              <React.Fragment key={offer.id}>
-                {index > 0 && <span className="text-[#b96034]">•</span>}
-                <span>{offer.text}</span>
-              </React.Fragment>
-            ))}
-          </div>
-        </div>
-      )}
 
       <main className="flex-1">
         <div className="bg-[#fff1e4]">

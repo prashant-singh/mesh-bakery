@@ -11,7 +11,7 @@ import {
   PackageSearch,
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { BASE_PATH, withBasePath } from "@/lib/config";
+import { withBasePath } from "@/lib/config";
 import { productPath } from "@/lib/productRoutes";
 import {
   FeaturedAnnouncement,
@@ -46,15 +46,6 @@ type Product = {
   customizableProperties?: CustomizableProperty[];
   active?: boolean;
   featured?: boolean;
-};
-
-type OfferBanner = {
-  id: string;
-  text: string;
-  link?: string;
-  linkText?: string;
-  variant?: "primary" | "secondary" | "alert"; // Add your options here
-  isActive: boolean;
 };
 
 type LazyVideoProps = React.VideoHTMLAttributes<HTMLVideoElement> & {
@@ -113,8 +104,6 @@ export default function Page() {
       }
     >
   >({});
-  // ---> PASTE THE NEW STATES RIGHT HERE <---
-  const [offers, setOffers] = useState<OfferBanner[]>([]);
   const [featuredConfig, setFeaturedConfig] = useState<FeaturedConfig | null>(
     null,
   );
@@ -142,14 +131,6 @@ export default function Page() {
         setProductPrices({ ...Object.fromEntries(products.map(product => [product.id, product.price])), ...local.prices });
       })
       .catch(() => undefined);
-  }, []);
-
-  // This is the new offers fetch
-  React.useEffect(() => {
-    fetch(`${BASE_PATH}/offer.json?v=` + Date.now())
-      .then((res) => res.json())
-      .then((data) => setOffers(data))
-      .catch((err) => console.error("Failed to load offer banners", err));
   }, []);
 
   React.useEffect(() => {
@@ -247,7 +228,6 @@ export default function Page() {
   const activeHeroMedia = activeHeroProduct?.media.find(
     (media) => isVisualImage(media) || isVideo(media),
   );
-  const activeOffers = offers.filter((offer) => offer.isActive);
   const moveHero = (direction: 1 | -1) => {
     if (heroProducts.length <= 1) return;
     setHeroDirection(direction);
@@ -289,18 +269,6 @@ export default function Page() {
           ))}
         </div>
       </div>
-      {activeOffers.length > 0 && (
-        <div className="w-full px-4 py-2 text-center text-sm md:text-base font-semibold text-[#8a3f1f] bg-[#ffd7bf]">
-          <div className="flex items-center justify-center gap-3 md:gap-5 flex-wrap">
-            {activeOffers.map((offer, index) => (
-              <React.Fragment key={offer.id}>
-                {index > 0 && <span className="text-[#b96034]">•</span>}
-                <span>{offer.text}</span>
-              </React.Fragment>
-            ))}
-          </div>
-        </div>
-      )}
 
       <main className="flex-1">
         <div className="bg-[#fff1e4]">
