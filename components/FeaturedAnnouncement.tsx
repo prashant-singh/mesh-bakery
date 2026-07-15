@@ -4,15 +4,9 @@ import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { withBasePath } from '@/lib/config';
+import type { FeaturedConfig } from '@/lib/featuredConfig';
 
-export type FeaturedConfig = {
-  enabled: boolean;
-  headline: string;
-  description: string;
-  largeDescription?: string;
-  accentColor?: string;
-  animationStyle: 'none' | 'shimmer' | 'arrow' | 'pulse';
-};
+export type { FeaturedConfig } from '@/lib/featuredConfig';
 
 type FeaturedAnnouncementProps = {
   config: FeaturedConfig | null;

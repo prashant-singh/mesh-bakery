@@ -103,3 +103,20 @@
     animation: none;
   }
 }
+
+a[href], button:not(:disabled), [role="button"], label[for], select:not(:disabled), input[type="checkbox"]:not(:disabled), input[type="radio"]:not(:disabled) {
+  cursor: pointer;
+}
+
+@keyframes shipping-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-25%); }
+}
+
+.shipping-marquee-track {
+  animation: shipping-marquee 18s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shipping-marquee-track { animation: none; }
+}

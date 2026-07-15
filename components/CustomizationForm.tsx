@@ -12,6 +12,11 @@ export type CustomizableProperty = {
 
 export type CustomizationValues = Record<string, string>;
 
+function colorOptionParts(option: string) {
+  const match = option.match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+  return { color: (match?.[1] ?? option).trim(), name: (match?.[2] ?? option).trim() };
+}
+
 type CustomizationFormProps = {
   fields?: CustomizableProperty[];
   values: CustomizationValues;
@@ -67,6 +72,7 @@ export function CustomizationForm({ fields, values, onChange }: CustomizationFor
           const inputType = field.type === 'number' ? 'number' : 'text';
           const isTextarea = field.type === 'textarea';
           const isSelect = field.type === 'select' && field.options?.length;
+          const isColor = field.type === 'color' && field.options?.length;
           const value = values[field.key] ?? '';
 
           return (
@@ -78,7 +84,23 @@ export function CustomizationForm({ fields, values, onChange }: CustomizationFor
                 </span>
               </span>
 
-              {isSelect ? (
+              {isColor ? (
+                <div className="flex flex-wrap gap-2" role="group" aria-label={field.label}>
+                  {field.options?.map(option => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => onChange(field.key, option)}
+                      aria-label={`select ${colorOptionParts(option).name}`}
+                      aria-pressed={value === option}
+                      title={colorOptionParts(option).name}
+                      className={`h-9 w-9 rounded-full border-2 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff6b35] focus-visible:ring-offset-2 ${value === option ? 'scale-110 border-white ring-2 ring-[#ff6b35] ring-offset-2' : 'border-black/15'}`}
+                      style={{ backgroundColor: colorOptionParts(option).color }}
+                    />
+                  ))}
+                  {value && <p className="w-full pt-1 text-xs font-bold text-[#795622]">{colorOptionParts(value).name}</p>}
+                </div>
+              ) : isSelect ? (
                 <select
                   value={value}
                   onChange={event => onChange(field.key, event.target.value)}

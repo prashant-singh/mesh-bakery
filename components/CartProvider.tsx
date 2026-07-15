@@ -3,6 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Minus, Plus, ShoppingBag, Trash2, X } from 'lucide-react';
 import { withBasePath } from '@/lib/config';
 
@@ -11,9 +12,10 @@ export type CartProduct = {
   name: string;
   price: number;
   imageUrl?: string;
+  customization?: Record<string, string>;
 };
 
-export type CartItem = CartProduct & { quantity: number };
+export type CartItem = CartProduct & { cartKey: string; quantity: number };
 
 type CartContextValue = {
   items: CartItem[];
@@ -21,8 +23,8 @@ type CartContextValue = {
   subtotal: number;
   isOpen: boolean;
   addItem: (product: CartProduct, quantity?: number) => void;
-  removeItem: (productId: string) => void;
-  setQuantity: (productId: string, quantity: number) => void;
+  removeItem: (cartKey: string) => void;
+  setQuantity: (cartKey: string, quantity: number) => void;
   clearCart: () => void;
   openCart: () => void;
   closeCart: () => void;
@@ -32,6 +34,13 @@ const STORAGE_KEY = 'mesh-bakery-cart-v1';
 const MAX_QUANTITY = 20;
 const CartContext = React.createContext<CartContextValue | null>(null);
 
+function cartKeyFor(product: CartProduct) {
+  const customization = Object.entries(product.customization ?? {})
+    .filter(([, value]) => value.trim())
+    .sort(([left], [right]) => left.localeCompare(right));
+  return `${product.id}:${JSON.stringify(customization)}`;
+}
+
 const formatInr = (value: number) =>
   new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -40,24 +49,32 @@ const formatInr = (value: number) =>
   }).format(value);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const hideCart = /(^|\/)admin(\/|$)/.test(pathname);
   const [items, setItems] = React.useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = React.useState(false);
   const [hasLoaded, setHasLoaded] = React.useState(false);
 
   React.useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved) as CartItem[];
-        if (Array.isArray(parsed)) {
-          setItems(parsed.filter(item => item.id && item.quantity > 0));
+    const timer = window.setTimeout(() => {
+      try {
+        const saved = window.localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved) as CartItem[];
+          if (Array.isArray(parsed)) {
+            setItems(parsed.filter(item => item.id && item.quantity > 0).map(item => ({
+              ...item,
+              cartKey: item.cartKey || cartKeyFor(item),
+            })));
+          }
         }
+      } catch {
+        window.localStorage.removeItem(STORAGE_KEY);
+      } finally {
+        setHasLoaded(true);
       }
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
-    } finally {
-      setHasLoaded(true);
-    }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   React.useEffect(() => {
@@ -76,27 +93,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = React.useCallback((product: CartProduct, quantity = 1) => {
     setItems(current => {
-      const existing = current.find(item => item.id === product.id);
-      if (!existing) return [...current, { ...product, quantity: Math.min(Math.max(quantity, 1), MAX_QUANTITY) }];
-      return current.map(item => item.id === product.id
+      const cartKey = cartKeyFor(product);
+      const existing = current.find(item => item.cartKey === cartKey);
+      if (!existing) return [...current, { ...product, cartKey, quantity: Math.min(Math.max(quantity, 1), MAX_QUANTITY) }];
+      return current.map(item => item.cartKey === cartKey
         ? { ...item, ...product, quantity: Math.min(item.quantity + quantity, MAX_QUANTITY) }
         : item);
     });
     setIsOpen(true);
   }, []);
 
-  const setQuantity = React.useCallback((productId: string, quantity: number) => {
+  const setQuantity = React.useCallback((cartKey: string, quantity: number) => {
     if (quantity <= 0) {
-      setItems(current => current.filter(item => item.id !== productId));
+      setItems(current => current.filter(item => item.cartKey !== cartKey));
       return;
     }
-    setItems(current => current.map(item => item.id === productId
+    setItems(current => current.map(item => item.cartKey === cartKey
       ? { ...item, quantity: Math.min(quantity, MAX_QUANTITY) }
       : item));
   }, []);
 
-  const removeItem = React.useCallback((productId: string) => {
-    setItems(current => current.filter(item => item.id !== productId));
+  const removeItem = React.useCallback((cartKey: string) => {
+    setItems(current => current.filter(item => item.cartKey !== cartKey));
   }, []);
 
   const itemCount = items.reduce((total, item) => total + item.quantity, 0);
@@ -117,21 +135,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }}>
       {children}
 
-      <button
+      {!hideCart && <button
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label={`open cart with ${itemCount} items`}
-        className="fixed right-5 top-5 z-[70] flex h-12 w-12 items-center justify-center rounded-full border border-[#3d3a36]/10 bg-[#fbf7f2]/95 text-[#2d2a26] shadow-lg backdrop-blur transition-transform hover:scale-105 md:right-8 md:top-7"
+        className="fixed bottom-5 right-5 z-[70] flex h-14 items-center justify-center gap-2 rounded-full border border-white/30 bg-[#ff6b35] px-5 text-white shadow-[0_10px_30px_rgba(255,107,53,0.38)] transition-transform hover:scale-105 md:bottom-8 md:right-8"
       >
         <ShoppingBag className="h-5 w-5" />
+        <span className="text-sm font-black tracking-wide">Cart</span>
         {itemCount > 0 && (
           <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#ff6b35] px-1 text-[10px] font-bold text-white">
             {itemCount > 99 ? '99+' : itemCount}
           </span>
         )}
-      </button>
+      </button>}
 
-      {isOpen && (
+      {!hideCart && isOpen && (
         <div className="fixed inset-0 z-[100]">
           <button
             type="button"
@@ -160,7 +179,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               ) : (
                 <div className="space-y-4">
                   {items.map(item => (
-                    <div key={item.id} className="flex gap-4 rounded-2xl border border-[#e9e4db] bg-white/65 p-3">
+                    <div key={item.cartKey} className="flex gap-4 rounded-2xl border border-[#e9e4db] bg-white/65 p-3">
                       <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-[#e9e4db]">
                         {item.imageUrl ? (
                           <Image src={item.imageUrl} alt={item.name} fill className="object-cover" sizes="96px" />
@@ -172,16 +191,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
                             <h3 className="line-clamp-2 font-serif text-lg leading-tight text-[#2d2a26]">{item.name}</h3>
                             <p className="mt-1 text-sm font-bold text-[#ff6b35]">{formatInr(item.price)}</p>
                           </div>
-                          <button type="button" onClick={() => removeItem(item.id)} className="p-1.5 text-[#3d3a36]/45 hover:text-red-700" aria-label={`remove ${item.name}`}>
+                          <button type="button" onClick={() => removeItem(item.cartKey)} className="p-1.5 text-[#3d3a36]/45 hover:text-red-700" aria-label={`remove ${item.name}`}>
                             <Trash2 className="h-4 w-4" />
                           </button>
                         </div>
+                        {Object.entries(item.customization ?? {}).filter(([, value]) => value).length > 0 && (
+                          <div className="mt-2 space-y-0.5 text-[11px] text-[#795622]">
+                            {Object.entries(item.customization ?? {}).filter(([, value]) => value).map(([key, value]) => <p key={key}>{key}: {value}</p>)}
+                          </div>
+                        )}
                         <div className="mt-3 inline-flex items-center rounded-full border border-[#d8cbb8] bg-[#fbf7f2]">
-                          <button type="button" onClick={() => setQuantity(item.id, item.quantity - 1)} className="flex h-8 w-8 items-center justify-center" aria-label={`decrease ${item.name} quantity`}>
+                          <button type="button" onClick={() => setQuantity(item.cartKey, item.quantity - 1)} className="flex h-8 w-8 items-center justify-center" aria-label={`decrease ${item.name} quantity`}>
                             <Minus className="h-3.5 w-3.5" />
                           </button>
                           <span className="w-8 text-center text-sm font-bold">{item.quantity}</span>
-                          <button type="button" onClick={() => setQuantity(item.id, item.quantity + 1)} className="flex h-8 w-8 items-center justify-center" aria-label={`increase ${item.name} quantity`}>
+                          <button type="button" onClick={() => setQuantity(item.cartKey, item.quantity + 1)} className="flex h-8 w-8 items-center justify-center" aria-label={`increase ${item.name} quantity`}>
                             <Plus className="h-3.5 w-3.5" />
                           </button>
                         </div>

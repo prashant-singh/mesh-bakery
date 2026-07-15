@@ -1,10 +1,19 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "mesh-bakery-payments",
-  "main": "src/index.ts",
-  "compatibility_date": "2026-07-10",
-  "vars": {
-    "ALLOWED_ORIGINS": "https://prashant-singh.github.io,http://localhost:3000",
-    "PICKUP_PINCODE": "380009"
-  }
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "mesh-bakery-payments",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-07-10",
+	"vars": {
+		"ALLOWED_ORIGINS": "https://prashant-singh.github.io,http://localhost:3000",
+		"PICKUP_PINCODE": "380009",
+		"DELHIVERY_API_BASE_URL": "https://track.delhivery.com",
+		"PUBLIC_STOREFRONT_URL": "https://prashant-singh.github.io/mesh-bakery"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "mesh-bakery-commerce",
+			"database_id": "a65c8151-0782-4638-894e-79c5eadd7a38"
+		}
+	]
 }

@@ -25,22 +25,9 @@ type RazorpayResponse = {
   razorpay_signature: string;
 };
 
-type RazorpayOptions = {
-  key: string;
-  amount: number;
-  currency: string;
-  name: string;
-  description: string;
-  order_id: string;
-  prefill: { name: string; email: string; contact: string };
-  handler: (response: RazorpayResponse) => void | Promise<void>;
-  theme: { color: string };
-  modal: { ondismiss: () => void };
-};
-
 declare global {
   interface Window {
-    Razorpay?: new (options: RazorpayOptions) => { open: () => void };
+    Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
   }
 }
 
@@ -50,6 +37,8 @@ const emptyForm: CheckoutForm = {
 const scriptUrl = 'https://checkout.razorpay.com/v1/checkout.js';
 const FREE_SHIPPING_THRESHOLD = 499;
 const STANDARD_SHIPPING = 70;
+const validEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+const validMobile = (value: string) => /^(?:\+91|91|0)?[6-9][0-9]{9}$/.test(value.replace(/[\s-]/g, ''));
 const formatInr = (value: number) => new Intl.NumberFormat('en-IN', {
   style: 'currency', currency: 'INR', maximumFractionDigits: 0,
 }).format(value);
@@ -78,8 +67,13 @@ export default function CheckoutPage() {
   const [status, setStatus] = React.useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = React.useState('');
   const [confirmedOrder, setConfirmedOrder] = React.useState<{ id: string; token: string; paymentId: string } | null>(null);
+  const [touched, setTouched] = React.useState({ phone: false, email: false });
   const shipping = subtotal > FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING;
   const total = subtotal + shipping;
+  const phoneError = (touched.phone || form.phone.length > 0) && !validMobile(form.phone)
+    ? 'Enter a valid 10-digit Indian mobile number.' : '';
+  const emailError = (touched.email || form.email.length > 0) && !validEmail(form.email)
+    ? 'Enter a valid email address.' : '';
 
   const update = (field: keyof CheckoutForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     setForm(current => ({ ...current, [field]: event.target.value }));
@@ -87,6 +81,12 @@ export default function CheckoutPage() {
 
   const startPayment = async (event: React.FormEvent) => {
     event.preventDefault();
+    setTouched({ phone: true, email: true });
+    if (!validMobile(form.phone) || !validEmail(form.email)) {
+      setStatus('error');
+      setMessage('Please correct the highlighted contact details.');
+      return;
+    }
     setStatus('loading');
     setMessage('');
 
@@ -99,7 +99,7 @@ export default function CheckoutPage() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            items: items.map(item => ({ productId: item.id, quantity: item.quantity })),
+            items: items.map(item => ({ productId: item.id, quantity: item.quantity, customization: item.customization })),
             customer: { name: form.name, email: form.email, phone: form.phone },
             address: {
               line1: form.line1, line2: form.line2, landmark: form.landmark,
@@ -123,7 +123,7 @@ export default function CheckoutPage() {
         prefill: { name: form.name, email: form.email, contact: form.phone },
         theme: { color: '#ff6b35' },
         modal: { ondismiss: () => setStatus('idle') },
-        handler: async (payment) => {
+          handler: async (payment: RazorpayResponse) => {
           try {
             setStatus('loading');
             const verificationResponse = await fetch(`${RAZORPAY_API_URL}/verify-payment`, {
@@ -164,7 +164,10 @@ export default function CheckoutPage() {
           <h1 className="mt-5 font-serif text-4xl font-light text-[#2d2a26]">payment confirmed</h1>
           <p className="mt-3 text-sm leading-relaxed text-[#3d3a36]/70">Your order reference is <strong>{confirmedOrder.id}</strong>. Keep this reference for support and tracking.</p>
           <p className="mt-2 text-xs text-[#3d3a36]/55">Payment: {confirmedOrder.paymentId}</p>
-          <Link href={withBasePath('/')} className="mt-7 inline-flex h-12 items-center justify-center rounded-full bg-[#2d2a26] px-7 text-sm font-bold tracking-wider text-white">back to catalogue</Link>
+          <div className="mt-7 flex flex-wrap justify-center gap-3">
+            <Link href={withBasePath(`/track?order=${encodeURIComponent(confirmedOrder.id)}`)} className="inline-flex h-12 items-center justify-center rounded-full bg-[#ff6b35] px-7 text-sm font-bold tracking-wider text-white">track this order</Link>
+            <Link href={withBasePath('/')} className="inline-flex h-12 items-center justify-center rounded-full bg-[#2d2a26] px-7 text-sm font-bold tracking-wider text-white">back to catalogue</Link>
+          </div>
         </div>
       </main>
     );
@@ -182,8 +185,8 @@ export default function CheckoutPage() {
             <h1 className="mt-1 font-serif text-4xl font-light text-[#2d2a26]">delivery details</h1>
             <div className="mt-7 grid gap-4 md:grid-cols-2">
               <label className="md:col-span-2 text-xs font-bold">full name<input required autoComplete="name" value={form.name} onChange={update('name')} className={`${inputClass} mt-1.5`} /></label>
-              <label className="text-xs font-bold">phone<input required autoComplete="tel" inputMode="tel" pattern="[0-9+ -]{10,15}" value={form.phone} onChange={update('phone')} className={`${inputClass} mt-1.5`} /></label>
-              <label className="text-xs font-bold">email<input required type="email" autoComplete="email" value={form.email} onChange={update('email')} className={`${inputClass} mt-1.5`} /></label>
+              <label className="text-xs font-bold">phone<input required type="tel" autoComplete="tel" inputMode="tel" pattern="(?:\+91[ -]?|91[ -]?|0)?[6-9][0-9]{9}" maxLength={15} title="Enter a valid 10-digit Indian mobile number" value={form.phone} onChange={update('phone')} onBlur={() => setTouched(current => ({ ...current, phone: true }))} aria-invalid={Boolean(phoneError)} aria-describedby="phone-error" className={`${inputClass} mt-1.5 ${phoneError ? 'border-red-600 focus:border-red-600 focus:ring-red-600' : ''}`} />{phoneError && <span id="phone-error" className="mt-1.5 block text-xs font-semibold text-red-700" role="alert">{phoneError}</span>}</label>
+              <label className="text-xs font-bold">email<input required type="email" autoComplete="email" value={form.email} onChange={update('email')} onBlur={() => setTouched(current => ({ ...current, email: true }))} aria-invalid={Boolean(emailError)} aria-describedby="email-error" className={`${inputClass} mt-1.5 ${emailError ? 'border-red-600 focus:border-red-600 focus:ring-red-600' : ''}`} />{emailError && <span id="email-error" className="mt-1.5 block text-xs font-semibold text-red-700" role="alert">{emailError}</span>}</label>
               <label className="md:col-span-2 text-xs font-bold">address line 1<input required autoComplete="address-line1" value={form.line1} onChange={update('line1')} className={`${inputClass} mt-1.5`} /></label>
               <label className="md:col-span-2 text-xs font-bold">address line 2 <span className="font-normal opacity-50">(optional)</span><input autoComplete="address-line2" value={form.line2} onChange={update('line2')} className={`${inputClass} mt-1.5`} /></label>
               <label className="md:col-span-2 text-xs font-bold">landmark <span className="font-normal opacity-50">(optional)</span><input value={form.landmark} onChange={update('landmark')} className={`${inputClass} mt-1.5`} /></label>
@@ -191,7 +194,7 @@ export default function CheckoutPage() {
               <label className="text-xs font-bold">state<input required autoComplete="address-level1" value={form.state} onChange={update('state')} className={`${inputClass} mt-1.5`} /></label>
               <label className="text-xs font-bold">pincode<input required autoComplete="postal-code" inputMode="numeric" pattern="[1-9][0-9]{5}" maxLength={6} value={form.pincode} onChange={update('pincode')} className={`${inputClass} mt-1.5`} /></label>
             </div>
-            <div className="mt-6 rounded-xl border border-[#edd28a] bg-[#fff7dc] px-4 py-3 text-xs leading-relaxed text-[#795622]">Standard delivery is ₹70. Delivery is free when the cart value is more than ₹499. Delhivery pincode serviceability validation will be connected next.</div>
+            <div className="mt-6 rounded-xl border border-[#edd28a] bg-[#fff7dc] px-4 py-3 text-xs leading-relaxed text-[#795622]">Standard delivery is ₹70. Delivery is free when the cart value is more than ₹499. Your pincode will be checked for Delhivery prepaid serviceability before payment.</div>
             {message && <p className="mt-4 text-sm text-red-700" role="alert">{message}</p>}
             <button disabled={status === 'loading' || items.length === 0} type="submit" className="mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-full bg-[#ff6b35] text-sm font-bold tracking-widest text-white hover:bg-[#e85c29] disabled:cursor-not-allowed disabled:opacity-55">
               <LockKeyhole className="h-4 w-4" />{status === 'loading' ? 'preparing payment…' : items.length === 0 ? 'cart is empty' : 'pay securely'}
@@ -202,9 +205,9 @@ export default function CheckoutPage() {
             <div className="flex items-center gap-2"><ShoppingBag className="h-4 w-4" /><h2 className="font-serif text-2xl text-[#2d2a26]">order summary</h2></div>
             <div className="mt-5 space-y-4">
               {items.map(item => (
-                <div key={item.id} className="flex gap-3">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#e9e4db]">{item.imageUrl && <Image src={item.imageUrl} alt={item.name} fill className="object-cover" sizes="64px" />}</div>
-                  <div className="min-w-0 flex-1"><p className="line-clamp-2 font-serif text-base leading-tight text-[#2d2a26]">{item.name}</p><p className="mt-1 text-xs text-[#3d3a36]/60">qty {item.quantity}</p></div>
+                <div key={item.cartKey} className="flex gap-3">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[#e9e4db]">{item.imageUrl && <Image src={item.imageUrl} alt={item.name} fill className="object-cover" sizes="64px" />}<span className="absolute right-1 top-1 z-10 flex h-5 min-w-5 items-center justify-center rounded-full bg-black px-1 text-[10px] font-bold text-white">{item.quantity}</span></div>
+                  <div className="min-w-0 flex-1"><p className="line-clamp-2 font-serif text-base leading-tight text-[#2d2a26]">{item.name}</p><p className="mt-1 text-xs text-[#3d3a36]/60">qty {item.quantity}</p>{Object.entries(item.customization ?? {}).filter(([, value]) => value).map(([key, value]) => <p key={key} className="mt-0.5 text-[11px] text-[#795622]">{key}: {value}</p>)}</div>
                   <p className="text-sm font-bold">{formatInr(item.price * item.quantity)}</p>
                 </div>
               ))}

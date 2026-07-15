@@ -3,9 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run generate:media && next dev",
-    "build": "npm run generate:media && next build",
-    "generate:media": "node scripts/generate-product-media.mjs",
+    "dev": "next dev",
+    "build": "next build",
     "lint": "eslint .",
     "clean": "next clean"
   },

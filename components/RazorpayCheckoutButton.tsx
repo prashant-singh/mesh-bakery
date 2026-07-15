@@ -9,21 +9,9 @@ type RazorpayResponse = {
   razorpay_signature: string;
 };
 
-type RazorpayOptions = {
-  key: string;
-  amount: number;
-  currency: string;
-  name: string;
-  description: string;
-  order_id: string;
-  handler: (response: RazorpayResponse) => void | Promise<void>;
-  theme: { color: string };
-  modal: { ondismiss: () => void };
-};
-
 declare global {
   interface Window {
-    Razorpay?: new (options: RazorpayOptions) => { open: () => void };
+    Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
   }
 }
 

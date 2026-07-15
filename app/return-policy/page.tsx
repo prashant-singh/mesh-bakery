@@ -3,8 +3,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowLeft, ShieldCheck, RefreshCw, Truck, MessageCircle, Instagram } from 'lucide-react';
-import { BASE_PATH } from '@/lib/config';
 import { FeaturedAnnouncement, type FeaturedConfig } from '@/components/FeaturedAnnouncement';
+import { fetchFeaturedConfig } from '@/lib/featuredConfig';
 
 export default function ReturnPolicyPage() {
 	// Hardcoded URLs to match your main configuration
@@ -13,8 +13,7 @@ export default function ReturnPolicyPage() {
 	const [featuredConfig, setFeaturedConfig] = React.useState<FeaturedConfig | null>(null);
 
 	React.useEffect(() => {
-		fetch(`${BASE_PATH}/featured-config.json?v=` + Date.now())
-			.then(res => res.json())
+		fetchFeaturedConfig()
 			.then(data => setFeaturedConfig(data))
 			.catch(err => console.error('Failed to load featured config', err));
 	}, []);

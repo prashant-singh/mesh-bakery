@@ -7,39 +7,18 @@
       {
         "type": "image",
         "url": "/products/keychains/NumberPlateKeychain.png"
+      },
+      {
+        "type": "image",
+        "url": "/products/keychains/NumberPlateKeychain_2.png"
       }
     ],
     "tags": [
       "customizable"
     ],
-    "price": 79.00,
-    "size": "10cm x 5cm x 5cm",
+    "price": 79,
     "shortDescription": "Your ride, your style, your keychain. ⚡ Get your custom number plate or explore our other unique designs today.",
-    "description": "Buy pack of customizable keychains, One for each vehicle and for each person in your house.",
-    "customizableProperties": [
-      {
-        "key": "name",
-        "label": "Name",
-        "type": "text",
-        "required": true,
-        "placeholder": "e.g. Harshit"
-      },
-      {
-        "key": "licenseNumber",
-        "label": "License number",
-        "type": "text",
-        "required": true,
-        "placeholder": "e.g. MH 12 AB 1234"
-      },
-      {
-        "key": "color",
-        "label": "Color",
-        "type": "text",
-        "required": false,
-        "placeholder": "optional"
-      }
-    ],
-    "featured": true
+    "description": "Buy pack of customizable keychains, One for each vehicle and for each person in your house."
   },
   {
     "id": "mb-27",
@@ -54,41 +33,9 @@
     "tags": [
       "customizable"
     ],
-    "price": 79.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 79,
     "shortDescription": "The ultimate accessory for the iron obsessed. 🏋️‍♂️",
-    "description": "Fully Customizable: Add your name, lift type (Deadlift, Squat, Bench, etc.), and PR weight.",
-    "customizableProperties": [
-      {
-        "key": "name",
-        "label": "Name",
-        "type": "text",
-        "required": true,
-        "placeholder": "e.g. Harshit"
-      },
-      {
-        "key": "liftType",
-        "label": "Lift type",
-        "type": "text",
-        "required": true,
-        "placeholder": "e.g. Deadlift"
-      },
-      {
-        "key": "barWeight",
-        "label": "Bar weight",
-        "type": "text",
-        "required": true,
-        "placeholder": "e.g. 120 kg"
-      },
-      {
-        "key": "color",
-        "label": "Color",
-        "type": "text",
-        "required": false,
-        "placeholder": "optional"
-      }
-    ],
-    "featured": true
+    "description": "Fully Customizable: Add your name, lift type (Deadlift, Squat, Bench, etc.), and PR weight."
   },
   {
     "id": "mb-09",
@@ -103,34 +50,9 @@
     "tags": [
       "customizable"
     ],
-    "price": 79.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 79,
     "shortDescription": "Make your daily carry unique with this customizable initial letter keychain.",
-    "description": "Add a personal touch to your everyday gear with this customizable letter keychain. Pick your initial to create a sleek, custom accessory that keeps your keys secure while adding a unique, tailormade statement to your favorite backpack or bag.",
-    "customizableProperties": [
-      {
-        "key": "initial",
-        "label": "Initial",
-        "type": "text",
-        "required": true,
-        "placeholder": "e.g. H"
-      },
-      {
-        "key": "name",
-        "label": "Name",
-        "type": "text",
-        "required": false,
-        "placeholder": "optional"
-      },
-      {
-        "key": "color",
-        "label": "Color",
-        "type": "text",
-        "required": false,
-        "placeholder": "optional"
-      }
-    ],
-    "featured": true
+    "description": "Add a personal touch to your everyday gear with this customizable letter keychain. Pick your initial to create a sleek, custom accessory that keeps your keys secure while adding a unique, tailormade statement to your favorite backpack or bag."
   },
   {
     "id": "mb-01",
@@ -145,8 +67,7 @@
     "tags": [
       "new"
     ],
-    "price": 79.00,
-    "size": "10cm x 5cm x 5cm",
+    "price": 79,
     "shortDescription": "Iconic red-and-white Poké Ball keychain to secure your keys with nostalgic style.",
     "description": "Bring the Pokémon universe to your daily routine with this premium, screen-accurate Poké Ball keychain. Built from durable materials to withstand daily wear, it securely attaches to your keys or backpack, making it the perfect functional collectible for fans of all generations."
   },
@@ -161,8 +82,7 @@
       }
     ],
     "tags": [],
-    "price": 79.00,
-    "size": "8cm x 12cm x 4cm",
+    "price": 79,
     "shortDescription": "Showcase your pirate pride with this iconic Straw Hat skull keychain.",
     "description": "Carry the spirit of adventure with this premium One Piece Jolly Roger keychain. Featuring Luffy’s iconic straw hat skull design, this durable accessory easily clips to your keys or backpack—making it the ultimate daily collectible for every anime fan."
   },
@@ -179,8 +99,7 @@
     "tags": [
       "popular"
     ],
-    "price": 299.00,
-    "size": "1:28 scale",
+    "price": 299,
     "shortDescription": "Show off your inner pirate with this iconic Monkey D. Luffy head keychain.",
     "description": "Carry the future Pirate King everywhere with this premium One Piece Luffy head keychain. Featuring his signature smile and iconic straw hat, the durable accessory securely clips to your daily gear—making it the ultimate collectible for any anime fan."
   },
@@ -195,8 +114,7 @@
       }
     ],
     "tags": [],
-    "price": 99.00,
-    "size": "10cm diameter (set of 4)",
+    "price": 99,
     "shortDescription": "Fidget on the go with this cute, flexible 3D-printed fox keychain.",
     "description": "Add a playful touch to your daily gear with this articulated 3D-printed fox keychain. Featuring a flexible, wiggly body and a cute orange design, it doubles as a fun fidget toy while keeping your keys securely together."
   },
@@ -211,8 +129,7 @@
       }
     ],
     "tags": [],
-    "price": 99.00,
-    "size": "12cm x 8cm x 10cm",
+    "price": 99,
     "shortDescription": "A group of cute, green, 3D-printed articulated crocodile keychains.",
     "description": "Four playful, cartoon-style green crocodile keychains with big eyes are arranged on a dark wooden table. They feature a 3D-printed texture, yellow undersides, and flexible, segmented bodies."
   },
@@ -229,8 +146,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 99.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 99,
     "shortDescription": "A sleek, matte black 3D-printed articulated Toothless dragon keychain.",
     "description": "This cute Toothless dragon keychain features a fully flexible, 3D-printed segmented body in a deep black finish, complete with expressive green eyes and detailed tiny wings."
   },
@@ -247,8 +163,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 99.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 99,
     "shortDescription": "Level up your daily carry with this sleek, wiggly monochrome fox companion.",
     "description": "Meet your new favorite pocket sidekick! This articulated black-and-white fox keychain features a fully flexible, multi-jointed body that delivers a satisfyingly fluid movement, making it the perfect eye-catching fidget charm to upgrade your keys, bag, or backpack."
   },
@@ -265,8 +180,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 99.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 99,
     "shortDescription": "Satisfy your style cravings with this adorable, realistic half-eaten chocolate keychain.",
     "description": "Add a deliciously fun twist to your daily carry with this playful half-eaten chocolate bar keychain. Featuring a quirky bite-mark design, this realistic, eye-catching charm is the ultimate sweet accessory to upgrade your keys, backpack, or daily gear."
   },
@@ -283,8 +197,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 129.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 129,
     "shortDescription": "Bring sweet childhood nostalgia to your daily carry with this classic Tweety keychain.",
     "description": "Flash back to your favorite cartoon mornings with this adorable Tweety bird keychain. Featuring that iconic, sassy yellow canary design, this durable little charm clips onto your keys or backpack to keep your daily gear looking fun and personal."
   },
@@ -301,8 +214,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 129.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 129,
     "shortDescription": "Keep your favorite electric Pokémon dancing on your keys with this flexible Pikachu.",
     "description": "Your everyday carry just got a major upgrade with this fully articulated Pikachu keychain. This clever little companion features a flexible, wiggly body that moves when you do, making it the ultimate playful fidget charm for your keys or backpack."
   },
@@ -319,8 +231,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 129.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 129,
     "shortDescription": "Bring a touch of Berk magic along with this elegant Light Fury keychain.",
     "description": "Celebrate your love for the Hidden World with this sleek Light Fury keychain. Capturing her elegant, shimmering white design, this durable charm clips effortlessly onto your backpack or keys to keep your daily gear looking completely legendary."
   },
@@ -337,13 +248,12 @@
     "tags": [
       "restocked"
     ],
-    "price": 129.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 129,
     "shortDescription": "Bring the Upside Down straight to your desk with this terrifying creature.",
     "description": "Unleash a touch of sci-fi horror on your workspace with this detailed Demogorgon figurine. Featuring its iconic open petal-mouth and long, creepy limbs, this miniature monster makes a major conversation piece for any pop-culture fan's collection."
   },
   {
-    "id": "mb-27",
+    "id": "mb-29",
     "name": "Groot",
     "category": "keychains",
     "media": [
@@ -355,14 +265,12 @@
     "tags": [
       "restocked"
     ],
-    "price": 129.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 129,
     "shortDescription": "I am groot.",
-    "description": "Give your workspace an instant personality boost with this charming mini Groot figurine. Featuring his signature innocent eyes and a tiny sapling smile, this adorable little guardian is the perfect cheerful companion to brighten up your desk setup.",
-    "featured": true
+    "description": "Give your workspace an instant personality boost with this charming mini Groot figurine. Featuring his signature innocent eyes and a tiny sapling smile, this adorable little guardian is the perfect cheerful companion to brighten up your desk setup."
   },
   {
-    "id": "mb-28",
+    "id": "mb-30",
     "name": "Spiderman",
     "category": "keychains",
     "media": [
@@ -374,11 +282,9 @@
     "tags": [
       "restocked"
     ],
-    "price": 249.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 249,
     "shortDescription": "Bring a hero to your workspace with this detailed Spider-Man.",
-    "description": "Give your desk a major hero upgrade with this premium Spider-Man Action Figure. Featuring his high-tech armor with detailed golden pincers, this 20cm collectible statue stands completely ready to protect your workspace from any daily villain.",
-    "featured": true
+    "description": "Give your desk a major hero upgrade with this premium Spider-Man Action Figure. Featuring his high-tech armor with detailed golden pincers, this 20cm collectible statue stands completely ready to protect your workspace from any daily villain."
   },
   {
     "id": "mb-13",
@@ -393,8 +299,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 499.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 499,
     "shortDescription": "Give your desk a legendary upgrade with this kraken-inspired controller stand.",
     "description": "Bring the mysteries of the deep sea straight to your desktop. This striking octopus tentacle stand features sculpted suction cups and a broad, heavy base that securely cradles your PS5 DualSense controller while turning your setup into a major conversation piece."
   },
@@ -411,8 +316,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 499.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 499,
     "shortDescription": "Give your gaming setup hero status with this bold Spider-Man stand.",
     "description": "Bring a touch of the Spider-Verse straight to your desktop. This Spider-Man Controller Stand features a clean, stylized design showcasing the iconic superhero emblem, keeping your gear perfectly organized and securely balanced between web-swinging gaming sessions."
   },
@@ -429,8 +333,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 499.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 499,
     "shortDescription": "Give your gaming setup hero status with this bold Spider-Man stand.",
     "description": "Bring a touch of the Spider-Verse straight to your desktop. This Spider-Man Controller Stand features a clean, stylized design showcasing the iconic superhero emblem, keeping your gear perfectly organized and securely balanced between web-swinging gaming sessions."
   },
@@ -451,8 +354,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 149.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 149,
     "shortDescription": "Brighten your desk setup with this adorable, sturdy cat phone stand.",
     "description": "Give your smartphone a cute place to rest with this charming cat figurine phone holder. Crafted with a stable, slip-resistant base, it keeps your screen at the perfect viewing angle for hands-free video calls, streaming, or browsing."
   },
@@ -469,8 +371,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 299.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 299,
     "shortDescription": "Level up your desktop setup with this iconic, gaming-inspired Poké Ball pen holder.",
     "description": "Bring the ultimate trainer style to your workspace with this eye-catching Poké Ball pen holder. Featuring the classic red, white, and black design, it keeps your favorite writing gear organized and ready for your next big idea."
   },
@@ -487,8 +388,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 249.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 249,
     "shortDescription": "Bring the galaxy's cutest bounty to your workspace with this mini Grogu.",
     "description": "Give your desk setup a touch of the Force with this premium Grogu Baby Yoda Action Figure. Standing at a compact 5.5 cm, this durable PVC figurine captures his signature curious expression, making it the perfect minimalist desk companion."
   },
@@ -505,8 +405,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 49.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 49,
     "shortDescription": "Bring mythical charm to your workspace with this fierce mini dragon.",
     "description": "Unleash some fantasy on your desk with this articulated red dragon figurine. Featuring a fully flexible, multi-jointed body that wiggles when handled, this striking little pocket beast is the perfect playful desk companion or fidget charm."
   },
@@ -523,8 +422,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 199.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 199,
     "shortDescription": "Keep your place in style with these charming, pastel-colored kitty page dividers.",
     "description": "Make your reading hours a lot brighter with this adorable Cute Cat Kawaii Bookmark Set. Featuring fun illustrations paired with classic book-lover quotes, these vibrant cardstock markers are the ultimate sidekick to slide between your favorite pages."
   },
@@ -541,8 +439,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 199.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 199,
     "shortDescription": "Slide a cute peekaboo kitten over your page to save your spot.",
     "description": "Make your reading hours a lot more playful with this clever Peekaboo Cat Bookmark. Its lightweight, split design makes it look like a tiny black cat is hiding inside your book and peering over the pages."
   },
@@ -559,8 +456,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 199.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 199,
     "shortDescription": "Slide a cute peekaboo kitten over your page to save your spot.",
     "description": "Make your reading hours a lot more playful with this clever Peekaboo Cat Bookmark. Its lightweight, split design makes it look like a tiny black cat is hiding inside your book and peering over the pages."
   },
@@ -577,8 +473,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 199.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 199,
     "shortDescription": "Slide a cute peekaboo kitten over your page to save your spot.",
     "description": "Make your reading hours a lot more playful with this clever Peekaboo Cat Bookmark. Its lightweight, split design makes it look like a tiny black cat is hiding inside your book and peering over the pages."
   },
@@ -599,8 +494,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 199.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 199,
     "shortDescription": "Mark your pages with epic fantasy flair using these ornate sword bookmarks.",
     "description": "Bring an adventurous, legendary vibe to your reading journey with these beautifully detailed sword bookmarks. Featuring intricate hilts, gold accents, and a vintage aesthetic, they are the perfect stylish companions to slide into your favorite fantasy novels."
   },
@@ -617,13 +511,12 @@
     "tags": [
       "restocked"
     ],
-    "price": 699.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 699,
     "shortDescription": "Guard your desk setup with Gotham's legendary hero standing by your side.",
     "description": "Bring the Dark Knight straight to your workspace with this detailed Batman action figure. Featuring a sleek, classic suit design, this durable miniature hero is the perfect pocket-sized defender to elevate your gaming desk or bookshelf."
   },
   {
-    "id": "mb-26",
+    "id": "mb-31",
     "name": "One Wish Willow",
     "category": "desk toys",
     "media": [
@@ -635,8 +528,7 @@
     "tags": [
       "restocked"
     ],
-    "price": 299.00,
-    "size": "8cm x 8cm x 9cm",
+    "price": 299,
     "shortDescription": "They say Obsession stays with you long after the credits roll. Consider this the physical proof of my cinematic trauma.",
     "description": "If you want to bring a piece of Obsession into the real world, this 3D-printed replica is up for grabs!"
   }
