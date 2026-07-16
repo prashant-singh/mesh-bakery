@@ -239,6 +239,9 @@ async function createOrder(request: Request, env: Env, origin: string, persistOr
   const pricedItems = normalizedItems.map(({ product, quantity, customization }) => ({
     productId: product!.id,
     name: product!.name,
+    imageUrl: product!.media?.find(media => media.type === 'image')?.thumbUrl ??
+      product!.media?.find(media => media.type === 'image')?.cardUrl ??
+      product!.media?.find(media => media.type === 'image')?.url ?? null,
     quantity,
     unitPrice: Math.round(product!.price * 100),
     lineTotal: Math.round(product!.price * 100) * quantity,
@@ -306,9 +309,9 @@ async function createOrder(request: Request, env: Env, origin: string, persistOr
         customer.email!.trim().toLowerCase(), customer.phone!.trim(), JSON.stringify(address), subtotal, shipping, amount,
       ),
       ...pricedItems.map(item => env.DB!.prepare(`
-        INSERT INTO order_items (order_id, product_id, product_name, unit_price_paise, quantity, customization_json)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `).bind(internalOrderId, item.productId, item.name, item.unitPrice, item.quantity, JSON.stringify(item.customization))),
+        INSERT INTO order_items (order_id, product_id, product_name, product_image_url, unit_price_paise, quantity, customization_json)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).bind(internalOrderId, item.productId, item.name, item.imageUrl, item.unitPrice, item.quantity, JSON.stringify(item.customization))),
       env.DB.prepare(`
         INSERT INTO order_events (order_id, event_type, message)
         VALUES (?, 'order.created', 'Order created and awaiting payment')
@@ -375,9 +378,9 @@ async function sendOrderConfirmation(env: Env, orderId: string) {
         subtotal_paise: number; shipping_paise: number; total_paise: number;
       }>();
     if (!order?.customer_email) throw new Error('Order does not have a customer email address.');
-    const items = await env.DB.prepare(`SELECT product_name, unit_price_paise, quantity, customization_json
+    const items = await env.DB.prepare(`SELECT product_id, product_name, product_image_url, unit_price_paise, quantity, customization_json
       FROM order_items WHERE order_id = ? ORDER BY id`).bind(orderId).all<{
-        product_name: string; unit_price_paise: number; quantity: number; customization_json: string;
+        product_id: string; product_name: string; product_image_url: string | null; unit_price_paise: number; quantity: number; customization_json: string;
       }>();
     const money = (paise: number) => `₹${(paise / 100).toLocaleString('en-IN')}`;
     const itemHtml = items.results.map(item => {
@@ -386,7 +389,12 @@ async function sendOrderConfirmation(env: Env, orderId: string) {
       const details = Object.entries(customization).map(([key, value]) =>
         `<li><strong>${escapeHtml(key)}:</strong> ${escapeHtml(value)}</li>`,
       ).join('');
-      return `<div style="padding:16px 0;border-bottom:1px solid #e9e4db"><strong>${escapeHtml(item.quantity)} × ${escapeHtml(item.product_name)}</strong><span style="float:right">${escapeHtml(money(item.unit_price_paise * item.quantity))}</span>${details ? `<ul style="margin:8px 0 0;padding-left:20px;color:#5f5a53">${details}</ul>` : ''}</div>`;
+      const imageUrl = item.product_image_url
+        ? item.product_image_url.startsWith('http')
+          ? item.product_image_url
+          : `${env.PUBLIC_STOREFRONT_URL!.replace(/\/$/, '')}/${item.product_image_url.replace(/^\//, '')}`
+        : '';
+      return `<div style="padding:16px 0;border-bottom:1px solid #e9e4db;min-height:${imageUrl ? '72px' : 'auto'}">${imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(item.product_name)}" width="72" height="72" style="float:left;width:72px;height:72px;object-fit:cover;border-radius:10px;margin-right:14px" />` : ''}<strong>${escapeHtml(item.quantity)} × ${escapeHtml(item.product_name)}</strong><span style="float:right">${escapeHtml(money(item.unit_price_paise * item.quantity))}</span><div style="margin-top:4px;font-family:monospace;font-size:12px;color:#5b6346">Product ID: ${escapeHtml(item.product_id)}</div>${details ? `<ul style="margin:8px 0 0;padding-left:20px;color:#5f5a53">${details}</ul>` : ''}<div style="clear:both"></div></div>`;
     }).join('');
     const trackingUrl = `${env.PUBLIC_STOREFRONT_URL.replace(/\/$/, '')}/track?order=${encodeURIComponent(order.id)}`;
     const html = `<div style="font-family:Arial,sans-serif;max-width:640px;margin:auto;color:#2d2a26"><h1>Thank you for your order</h1><p>Hi ${escapeHtml(order.customer_name)}, your payment has been confirmed.</p><p><strong>Order reference:</strong> ${escapeHtml(order.id)}</p><div>${itemHtml}</div><div style="padding:16px 0"><p>Subtotal: ${escapeHtml(money(order.subtotal_paise))}</p><p>Shipping: ${escapeHtml(money(order.shipping_paise))}</p><p style="font-size:20px"><strong>Total: ${escapeHtml(money(order.total_paise))}</strong></p></div><a href="${escapeHtml(trackingUrl)}" style="display:inline-block;padding:12px 20px;border-radius:24px;background:#ff6b35;color:white;text-decoration:none;font-weight:bold">Track your order</a><p style="margin-top:28px;color:#777;font-size:12px">Keep your order reference safe. It is required to view tracking.</p></div>`;

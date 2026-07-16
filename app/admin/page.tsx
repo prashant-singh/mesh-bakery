@@ -40,6 +40,7 @@ type Order = {
   address_json: string | null;
   subtotal_paise: number;
   shipping_paise: number;
+  discount_paise: number;
   total_paise: number;
   payment_status: string;
   fulfillment_status: string;
@@ -52,7 +53,9 @@ type Order = {
 type OrderItem = {
   id: number;
   order_id: string;
+  product_id: string;
   product_name: string;
+  product_image_url: string | null;
   unit_price_paise: number;
   quantity: number;
   customization_json: string;
@@ -1178,6 +1181,35 @@ export default function AdminPage() {
                         "en-IN",
                       )}
                     </p>
+                    <div className="mt-1.5 flex -space-x-2">
+                      {items
+                        .filter(
+                          (item) =>
+                            item.order_id === order.id && item.product_image_url,
+                        )
+                        .slice(0, 4)
+                        .map((item) => (
+                          <div
+                            key={item.id}
+                            className="relative h-8 w-8 overflow-hidden rounded-lg border-2 border-white bg-[#e9e4db]"
+                            title={`${item.product_name} (${item.product_id})`}
+                          >
+                            <Image
+                              src={withBasePath(item.product_image_url!)}
+                              alt={item.product_name}
+                              fill
+                              className="object-cover"
+                              sizes="32px"
+                            />
+                          </div>
+                        ))}
+                    </div>
+                    <p className="mt-0.5 truncate font-mono text-[10px] font-semibold normal-case text-[#5b6346]">
+                      {items
+                        .filter((item) => item.order_id === order.id)
+                        .map((item) => item.product_id)
+                        .join(", ")}
+                    </p>
                   </div>
                   <p className="truncate text-sm font-semibold">
                     {order.customer_name}
@@ -1581,6 +1613,13 @@ export default function AdminPage() {
                   {selected.id}
                 </p>
                 <h2 className="mt-1 text-2xl font-semibold">order details</h2>
+                <p className="mt-1 text-xs text-black/50">
+                  {new Date(`${selected.created_at}Z`).toLocaleString("en-IN", {
+                    dateStyle: "long",
+                    timeStyle: "short",
+                    timeZone: "Asia/Kolkata",
+                  })}
+                </p>
               </div>
               <button onClick={() => setSelected(null)}>
                 <X />
@@ -1609,24 +1648,61 @@ export default function AdminPage() {
             <div className="mt-6">
               <p className="text-xs font-bold uppercase text-black/45">items</p>
               {selectedItems.map((item) => (
-                <div key={item.id} className="mt-3 border-b pb-3 text-sm">
-                  <div className="flex justify-between">
-                    <strong>
-                      {item.quantity} × {item.product_name}
-                    </strong>
-                    <span>{money(item.quantity * item.unit_price_paise)}</span>
+                <div key={item.id} className="mt-3 flex gap-3 border-b pb-3 text-sm">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border bg-[#e9e4db]">
+                    {item.product_image_url && (
+                      <Image
+                        src={withBasePath(item.product_image_url)}
+                        alt={item.product_name}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                      />
+                    )}
                   </div>
-                  <p className="mt-1 text-xs text-black/55">
-                    {Object.entries(parse(item.customization_json))
-                      .map(([k, v]) => `${k}: ${v}`)
-                      .join(" · ")}
-                  </p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex justify-between gap-3">
+                      <strong>
+                        {item.quantity} × {item.product_name}
+                      </strong>
+                      <span className="shrink-0 text-right">
+                        <span className="block font-bold">
+                          {money(item.quantity * item.unit_price_paise)}
+                        </span>
+                        <span className="block text-[10px] font-normal text-black/45">
+                          {money(item.unit_price_paise)} each
+                        </span>
+                      </span>
+                    </div>
+                    <p className="mt-1 font-mono text-[11px] font-semibold normal-case text-[#5b6346]">
+                      product ID: {item.product_id}
+                    </p>
+                    <p className="mt-1 text-xs text-black/55">
+                      {Object.entries(parse(item.customization_json))
+                        .map(([k, v]) => `${k}: ${v}`)
+                        .join(" · ")}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
-            <div className="mt-6 flex justify-between text-xl font-bold">
-              <span>total</span>
-              <span>{money(selected.total_paise)}</span>
+            <div className="mt-6 space-y-2 rounded-xl bg-[#faf8f5] p-4 text-sm">
+              <div className="flex justify-between">
+                <span className="text-black/60">items subtotal</span>
+                <span>{money(selected.subtotal_paise)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-black/60">shipping</span>
+                <span>{money(selected.shipping_paise)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-black/60">discount</span>
+                <span>-{money(selected.discount_paise || 0)}</span>
+              </div>
+              <div className="flex justify-between border-t pt-3 text-xl font-bold">
+                <span>order total</span>
+                <span>{money(selected.total_paise)}</span>
+              </div>
             </div>
             <div className="mt-6 flex flex-wrap gap-2">
               <select

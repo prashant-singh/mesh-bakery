@@ -58,6 +58,14 @@ export function ProductDetailClient({ product, suggestions, configurationPreload
   configurationPreloaded?: boolean;
 }) {
   const router = useRouter();
+
+  React.useEffect(() => {
+    document.title = `mesh bakery | ${product.name}`;
+    return () => {
+      document.title = 'mesh bakery | 3D Printing Bakery';
+    };
+  }, [product.name]);
+
   const [mediaIndex, setMediaIndex] = React.useState(0);
   const [customization, setCustomization] = React.useState<CustomizationValues>({});
   const [available, setAvailable] = React.useState<boolean | null>(configurationPreloaded ? product.active !== false : null);

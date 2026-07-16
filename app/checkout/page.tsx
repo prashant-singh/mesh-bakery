@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, LockKeyhole, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/components/CartProvider';
+import { StoreFooter } from '@/components/StoreFooter';
 import { RAZORPAY_API_URL, withBasePath } from '@/lib/config';
 
 type CheckoutForm = {
@@ -176,7 +177,25 @@ export default function CheckoutPage() {
   const inputClass = 'h-12 w-full rounded-xl border border-[#d8cbb8] bg-white/75 px-4 text-sm text-[#2d2a26] outline-none transition focus:border-[#ff6b35] focus:ring-1 focus:ring-[#ff6b35]';
 
   return (
-    <main className="min-h-screen bg-[#fbf7f2] px-5 py-8 md:px-10 md:py-12">
+    <div className="min-h-screen bg-[#fbf7f2]">
+      <div
+        className="overflow-hidden bg-[#2d2a26] py-2.5 text-sm font-bold text-white"
+        aria-label="shipping offers"
+      >
+        <div className="shipping-marquee-track flex w-max items-center whitespace-nowrap">
+          {[0, 1, 2, 3].map((copy) => (
+            <div
+              key={copy}
+              className="flex items-center gap-12 pr-12"
+              aria-hidden={copy > 0}
+            >
+              <span>🚀 Free shipping on orders over ₹499!</span>
+              <span>🚚 Free Mini Flexi Toy on purchase of ₹599 &amp; above</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <main className="px-5 py-8 md:px-10 md:py-12">
       <div className="mx-auto max-w-6xl">
         <Link href={withBasePath('/')} className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-[#2d2a26]"><ArrowLeft className="h-4 w-4" /> continue shopping</Link>
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
@@ -221,6 +240,8 @@ export default function CheckoutPage() {
           </aside>
         </div>
       </div>
-    </main>
+      </main>
+      <StoreFooter />
+    </div>
   );
 }
