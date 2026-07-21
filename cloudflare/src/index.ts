@@ -567,14 +567,14 @@ async function adminDashboard(request: Request, env: Env, origin: string) {
   const summary = await env.DB.prepare(`
     SELECT
       COUNT(*) AS total_orders,
-      SUM(CASE WHEN fulfillment_status != 'delivered' THEN 1 ELSE 0 END) AS active_orders,
-      SUM(CASE WHEN fulfillment_status = 'delivered' THEN 1 ELSE 0 END) AS delivered_orders,
-      SUM(total_paise) AS total_money_paise,
-      SUM(CASE WHEN fulfillment_status != 'delivered' THEN total_paise ELSE 0 END) AS pending_money_paise,
-      SUM(CASE WHEN fulfillment_status = 'delivered' THEN total_paise ELSE 0 END) AS delivered_revenue_paise,
-      SUM(shipping_paise) AS total_shipping_paise,
-      SUM(CASE WHEN fulfillment_status != 'delivered' THEN shipping_paise ELSE 0 END) AS pending_shipping_paise,
-      SUM(CASE WHEN fulfillment_status = 'delivered' THEN shipping_paise ELSE 0 END) AS delivered_shipping_paise
+      SUM(CASE WHEN payment_status = 'paid' AND fulfillment_status NOT IN ('delivered', 'cancelled') THEN 1 ELSE 0 END) AS active_orders,
+      SUM(CASE WHEN payment_status = 'paid' AND fulfillment_status = 'delivered' THEN 1 ELSE 0 END) AS delivered_orders,
+      SUM(CASE WHEN payment_status = 'paid' THEN total_paise ELSE 0 END) AS total_money_paise,
+      SUM(CASE WHEN payment_status = 'paid' AND fulfillment_status NOT IN ('delivered', 'cancelled') THEN total_paise ELSE 0 END) AS pending_money_paise,
+      SUM(CASE WHEN payment_status = 'paid' AND fulfillment_status = 'delivered' THEN total_paise ELSE 0 END) AS delivered_revenue_paise,
+      SUM(CASE WHEN payment_status = 'paid' THEN shipping_paise ELSE 0 END) AS total_shipping_paise,
+      SUM(CASE WHEN payment_status = 'paid' AND fulfillment_status NOT IN ('delivered', 'cancelled') THEN shipping_paise ELSE 0 END) AS pending_shipping_paise,
+      SUM(CASE WHEN payment_status = 'paid' AND fulfillment_status = 'delivered' THEN shipping_paise ELSE 0 END) AS delivered_shipping_paise
     FROM orders
   `).first<{
     total_orders: number; active_orders: number; delivered_orders: number;

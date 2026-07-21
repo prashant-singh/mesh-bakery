@@ -101,10 +101,10 @@ export function ProductDetailClient({ product, suggestions, configurationPreload
     <main className="min-h-screen bg-[#fbf7f2] text-[#2d2a26]">
       <header className="border-b border-[#e9e4db] bg-[#fff1e4] px-5 py-4 md:px-10">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
-          <button type="button" onClick={() => router.back()} className="inline-flex items-center gap-2 text-sm font-bold">
+          <Link href={withBasePath('/')} className="inline-flex items-center gap-2 text-sm font-bold" aria-label="back to mesh bakery home page">
             <ArrowLeft className="h-4 w-4" /> back
-          </button>
-          <Link href={withBasePath('/')} className="font-serif text-2xl font-light">mesh bakery</Link>
+          </Link>
+          <Link href={withBasePath('/')} className="font-serif text-2xl font-light" aria-label="mesh bakery home page">mesh bakery</Link>
           <Link href={withBasePath('/track')} className="inline-flex items-center gap-2 text-sm font-bold">
             <PackageSearch className="h-4 w-4" /><span className="hidden sm:inline">track order</span>
           </Link>
