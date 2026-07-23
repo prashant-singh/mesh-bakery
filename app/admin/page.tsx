@@ -784,6 +784,30 @@ export default function AdminPage() {
       setError((e as Error).message);
     }
   }
+  async function deleteOrder(order: Order) {
+    const confirmed = window.confirm(
+      `Delete order ${order.id}?\n\nThis permanently deletes the order and its related payment, shipment, item, and event records. This cannot be undone.`,
+    );
+    if (!confirmed) return;
+    setBusy(true);
+    setError("");
+    try {
+      await api(`/admin/orders/${encodeURIComponent(order.id)}`, {
+        method: "DELETE",
+        headers: auth(),
+      });
+      setSelected(null);
+      const nextPage =
+        pagination.page > 1 && orders.length === 1
+          ? pagination.page - 1
+          : pagination.page;
+      await Promise.all([loadOrders(nextPage), loadDashboard()]);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   async function addAwb(id: string) {
     const awb = prompt("Enter the Delhivery AWB number");
     if (!awb) return;
@@ -1731,6 +1755,16 @@ export default function AdminPage() {
                 >
                   track {selected.awb}
                 </a>
+              )}
+              {selected.payment_status === "pending" && (
+                <button
+                  disabled={busy}
+                  onClick={() => deleteOrder(selected)}
+                  className="flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-bold text-red-700 disabled:opacity-50"
+                >
+                  <Trash2 size={15} />
+                  delete order
+                </button>
               )}
             </div>
             <div className="mt-5 rounded-xl bg-[#faf8f5] p-4 text-xs">

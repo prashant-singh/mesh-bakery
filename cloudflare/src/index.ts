@@ -616,6 +616,26 @@ async function updateAdminOrder(request: Request, env: Env, origin: string, orde
   return json({ updated: true }, 200, origin);
 }
 
+async function deleteAdminOrder(request: Request, env: Env, origin: string, orderId: string) {
+  if (!env.DB) return json({ error: 'Order database is not configured.' }, 503, origin);
+  if (!await validAdminToken(request, env)) return json({ error: 'Admin login required.' }, 401, origin);
+  const existing = await env.DB.prepare('SELECT id, payment_status FROM orders WHERE id = ?')
+    .bind(orderId).first<{ id: string; payment_status: string }>();
+  if (!existing) return json({ error: 'Order not found.' }, 404, origin);
+  if (existing.payment_status !== 'pending') {
+    return json({ error: 'Only orders with pending payment can be deleted.' }, 409, origin);
+  }
+  await env.DB.batch([
+    env.DB.prepare('DELETE FROM shipments WHERE order_id = ?').bind(orderId),
+    env.DB.prepare('DELETE FROM payments WHERE order_id = ?').bind(orderId),
+    env.DB.prepare('DELETE FROM inventory_reservations WHERE order_id = ?').bind(orderId),
+    env.DB.prepare('DELETE FROM order_items WHERE order_id = ?').bind(orderId),
+    env.DB.prepare('DELETE FROM order_events WHERE order_id = ?').bind(orderId),
+    env.DB.prepare('DELETE FROM orders WHERE id = ?').bind(orderId),
+  ]);
+  return json({ deleted: true }, 200, origin);
+}
+
 async function adminProducts(request: Request, env: Env, origin: string) {
   if (!env.DB) return json({ error: 'Database is not configured.' }, 503, origin);
   if (!await validAdminToken(request, env)) return json({ error: 'Admin login required.' }, 401, origin);
@@ -921,6 +941,9 @@ const worker = {
       const adminOrderMatch = path.match(/^\/admin\/orders\/([^/]+)$/);
       if (adminOrderMatch && request.method === 'PATCH') {
         return await updateAdminOrder(request, env, origin, decodeURIComponent(adminOrderMatch[1]));
+      }
+      if (adminOrderMatch && request.method === 'DELETE') {
+        return await deleteAdminOrder(request, env, origin, decodeURIComponent(adminOrderMatch[1]));
       }
       const shipmentMatch = path.match(/^\/admin\/orders\/([^/]+)\/shipment$/);
       if (shipmentMatch && request.method === 'POST') return await createDelhiveryShipment(request, env, origin, decodeURIComponent(shipmentMatch[1]));
