@@ -566,7 +566,7 @@ async function adminDashboard(request: Request, env: Env, origin: string) {
   if (!await validAdminToken(request, env)) return json({ error: 'Admin login required.' }, 401, origin);
   const summary = await env.DB.prepare(`
     SELECT
-      COUNT(*) AS total_orders,
+      SUM(CASE WHEN payment_status = 'paid' THEN 1 ELSE 0 END) AS total_orders,
       SUM(CASE WHEN payment_status = 'paid' AND fulfillment_status NOT IN ('delivered', 'cancelled') THEN 1 ELSE 0 END) AS active_orders,
       SUM(CASE WHEN payment_status = 'paid' AND fulfillment_status = 'delivered' THEN 1 ELSE 0 END) AS delivered_orders,
       SUM(CASE WHEN payment_status = 'paid' THEN total_paise ELSE 0 END) AS total_money_paise,
