@@ -10,6 +10,7 @@ import {
   Boxes,
   ChevronLeft,
   ChevronRight,
+  ChevronsUp,
   ClipboardList,
   Eye,
   LayoutDashboard,
@@ -50,6 +51,8 @@ type Order = {
   awb: string | null;
   tracking_url: string | null;
 };
+
+const INVENTORY_PAGE_SIZE = 15;
 type OrderItem = {
   id: number;
   order_id: string;
@@ -855,6 +858,17 @@ export default function AdminPage() {
     const next = [...inventory];
     [next[index], next[target]] = [next[target], next[index]];
     setInventory(next);
+    setInventoryPage(Math.floor(target / INVENTORY_PAGE_SIZE) + 1);
+    setInventoryDirty(true);
+  }
+  function bringInventoryProductToTop(productId: string) {
+    const index = inventory.findIndex((product) => product.id === productId);
+    if (index <= 0) return;
+    const next = [...inventory];
+    const [product] = next.splice(index, 1);
+    next.unshift(product);
+    setInventory(next);
+    setInventoryPage(1);
     setInventoryDirty(true);
   }
   function saveCustomization() {
@@ -1014,7 +1028,6 @@ export default function AdminPage() {
   const selectedItems = selected
     ? items.filter((item) => item.order_id === selected.id)
     : [];
-  const inventoryPageSize = 15;
   const normalizedInventorySearch = inventorySearch.trim().toLowerCase();
   const filteredInventory = inventory.filter(
     (product) =>
@@ -1024,11 +1037,11 @@ export default function AdminPage() {
   );
   const inventoryTotalPages = Math.max(
     1,
-    Math.ceil(filteredInventory.length / inventoryPageSize),
+    Math.ceil(filteredInventory.length / INVENTORY_PAGE_SIZE),
   );
   const visibleInventory = filteredInventory.slice(
-    (inventoryPage - 1) * inventoryPageSize,
-    inventoryPage * inventoryPageSize,
+    (inventoryPage - 1) * INVENTORY_PAGE_SIZE,
+    inventoryPage * INVENTORY_PAGE_SIZE,
   );
   return (
     <main className="min-h-screen bg-[#f5f2ed] lg:grid lg:grid-cols-[220px_1fr]">
@@ -1532,6 +1545,15 @@ export default function AdminPage() {
                         className="rounded-full p-2 text-[#5b6346]"
                       >
                         <Pencil size={15} />
+                      </button>
+                      <button
+                        title="Bring to top"
+                        aria-label={`bring ${product.name} to top`}
+                        disabled={globalIndex === 0}
+                        onClick={() => bringInventoryProductToTop(product.id)}
+                        className="rounded-full border bg-white p-2 disabled:opacity-25"
+                      >
+                        <ChevronsUp size={14} />
                       </button>
                       <button
                         title="Move up"
