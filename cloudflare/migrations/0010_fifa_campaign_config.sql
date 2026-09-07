@@ -1,6 +1,6 @@
 INSERT INTO commerce_settings (key, value)
 VALUES (
   'fifa_campaign_config',
-  '{"enabled":true,"headline":"FIFA World Cup 2026","description":"Football-inspired prints for the road to 2026.","largeDescription":"A special football-inspired collection celebrating the road to FIFA World Cup 2026, featuring playful prints for fans, desks, keys, and match-day energy.","accentColor":"#ffd07a","animationStyle":"arrow"}'
+  '{"enabled":true,"headline":"Featured collection","description":"Discover our current featured products.","largeDescription":"Explore a curated collection of featured prints and products.","accentColor":"#ffd07a","animationStyle":"arrow"}'
 )
 ON CONFLICT(key) DO NOTHING;

@@ -9,11 +9,12 @@ type Product = {
   description?: string;
   active?: boolean;
   featured?: boolean;
+  campaign_featured?: boolean;
   fifa_featured?: boolean;
   customizableProperties?: CustomizationField[];
 };
 type CustomizationField = { key: string; label: string; type?: string; required?: boolean; placeholder?: string; helpText?: string; options?: string[] };
-type FifaCampaignConfig = { enabled: boolean; headline: string; description: string; largeDescription?: string; accentColor?: string; animationStyle: 'none' | 'shimmer' | 'arrow' | 'pulse' };
+type FeaturedCampaignConfig = { enabled: boolean; headline: string; description: string; largeDescription?: string; accentColor?: string; animationStyle: 'none' | 'shimmer' | 'arrow' | 'pulse' };
 type CartRequestItem = { productId?: string; quantity?: number; customization?: Record<string, string> };
 type D1Statement = {
   bind: (...values: unknown[]) => D1Statement;
@@ -641,20 +642,20 @@ async function adminProducts(request: Request, env: Env, origin: string) {
   if (!await validAdminToken(request, env)) return json({ error: 'Admin login required.' }, 401, origin);
   if (request.method === 'GET') {
     const rows = await env.DB.prepare('SELECT * FROM products WHERE product_json IS NOT NULL ORDER BY display_order, name').all<Record<string, unknown>>();
-    const result = rows.results.map(row => ({ ...(JSON.parse(String(row.product_json)) as Product), id: row.id, name: row.name, price: Number(row.price_paise) / 100, price_paise: row.price_paise, active: row.active, featured: row.featured, fifa_featured: row.fifa_featured, display_order: row.display_order, customizableProperties: row.customization_json == null ? [] : parseCustomizationFields(row.customization_json) }));
+    const result = rows.results.map(row => ({ ...(JSON.parse(String(row.product_json)) as Product), id: row.id, name: row.name, price: Number(row.price_paise) / 100, price_paise: row.price_paise, active: row.active, featured: row.featured, campaign_featured: row.fifa_featured, display_order: row.display_order, customizableProperties: row.customization_json == null ? [] : parseCustomizationFields(row.customization_json) }));
     return json({ products: result, total: result.length }, 200, origin);
   }
-  const body = await request.json() as { product?: Product & { active?: boolean; featured?: boolean; fifa_featured?: boolean } };
+  const body = await request.json() as { product?: Product & { active?: boolean; featured?: boolean; campaign_featured?: boolean } };
   const product = body.product;
   if (!product || !/^[A-Za-z0-9_-]{2,50}$/.test(product.id) || !product.name?.trim() || !Number.isFinite(product.price) || product.price <= 0) return json({ error: 'Valid product ID, name, and price are required.' }, 400, origin);
   const existing = await env.DB.prepare('SELECT id FROM products WHERE id = ?').bind(product.id).first();
   if (existing) return json({ error: 'A product with this ID already exists.' }, 409, origin);
   const fields = parseCustomizationFields(product.customizableProperties || []);
-  const base = { ...product, customizableProperties: undefined, active: undefined, featured: undefined, fifa_featured: undefined };
+  const base = { ...product, customizableProperties: undefined, active: undefined, featured: undefined, campaign_featured: undefined, fifa_featured: undefined };
   await env.DB.batch([
     env.DB.prepare('UPDATE products SET display_order = display_order + 1'),
     env.DB.prepare(`INSERT INTO products (id, name, price_paise, stock_quantity, active, featured, fifa_featured, display_order, product_json, customization_json) VALUES (?, ?, ?, 0, ?, ?, ?, 1, ?, ?)`)
-      .bind(product.id, product.name.trim(), Math.round(product.price * 100), product.active === false ? 0 : 1, product.featured === true ? 1 : 0, product.fifa_featured === true ? 1 : 0, JSON.stringify(base), JSON.stringify(fields)),
+      .bind(product.id, product.name.trim(), Math.round(product.price * 100), product.active === false ? 0 : 1, product.featured === true ? 1 : 0, (product.campaign_featured ?? product.fifa_featured) === true ? 1 : 0, JSON.stringify(base), JSON.stringify(fields)),
   ]);
   return json({ created: product.id }, 201, origin);
 }
@@ -692,25 +693,25 @@ async function saveAdminProductSettings(request: Request, env: Env, origin: stri
     seen.add(id);
     const pricePaise = Number(item.price_paise);
     if (!Number.isInteger(pricePaise) || pricePaise <= 0 || pricePaise > 100000000) throw new Error(`Invalid price for ${id}.`);
-    return { id, pricePaise, active: item.active === true || item.active === 1, featured: item.featured === true || item.featured === 1, fifaFeatured: item.fifa_featured === true || item.fifa_featured === 1, fields: parseCustomizationFields(item.customizableProperties), order: index + 1 };
+    return { id, pricePaise, active: item.active === true || item.active === 1, featured: item.featured === true || item.featured === 1, campaignFeatured: item.campaign_featured === true || item.campaign_featured === 1 || item.fifa_featured === true || item.fifa_featured === 1, fields: parseCustomizationFields(item.customizableProperties), order: index + 1 };
   });
-  await env.DB.batch(settings.map(item => env.DB!.prepare(`UPDATE products SET price_paise = ?, active = ?, featured = ?, fifa_featured = ?, customization_json = ?, display_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).bind(item.pricePaise, item.active ? 1 : 0, item.featured ? 1 : 0, item.fifaFeatured ? 1 : 0, JSON.stringify(item.fields), item.order, item.id)));
+  await env.DB.batch(settings.map(item => env.DB!.prepare(`UPDATE products SET price_paise = ?, active = ?, featured = ?, fifa_featured = ?, customization_json = ?, display_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).bind(item.pricePaise, item.active ? 1 : 0, item.featured ? 1 : 0, item.campaignFeatured ? 1 : 0, JSON.stringify(item.fields), item.order, item.id)));
   return json({ updated: settings.length }, 200, origin);
 }
 
 async function updateAdminProduct(request: Request, env: Env, origin: string, productId: string) {
   if (!env.DB) return json({ error: 'Database is not configured.' }, 503, origin);
   if (!await validAdminToken(request, env)) return json({ error: 'Admin login required.' }, 401, origin);
-  const body = await request.json() as { active?: boolean; featured?: boolean; fifa_featured?: boolean; customizableProperties?: unknown; product?: Product };
+  const body = await request.json() as { active?: boolean; featured?: boolean; campaign_featured?: boolean; fifa_featured?: boolean; customizableProperties?: unknown; product?: Product };
   const existing = await env.DB.prepare('SELECT id FROM products WHERE id = ?').bind(productId).first();
   if (!existing) return json({ error: 'Product not found. Sync products first.' }, 404, origin);
   const fieldsSource = body.product?.customizableProperties ?? body.customizableProperties;
   const fields = fieldsSource === undefined ? undefined : parseCustomizationFields(fieldsSource);
   const product = body.product;
   if (product && (!product.name?.trim() || !Number.isFinite(product.price) || product.price <= 0)) return json({ error: 'Valid product name and price are required.' }, 400, origin);
-  const base = product ? { ...product, id: productId, customizableProperties: undefined, active: undefined, featured: undefined, fifa_featured: undefined } : undefined;
+  const base = product ? { ...product, id: productId, customizableProperties: undefined, active: undefined, featured: undefined, campaign_featured: undefined, fifa_featured: undefined } : undefined;
   await env.DB.prepare(`UPDATE products SET name = COALESCE(?, name), price_paise = COALESCE(?, price_paise), active = COALESCE(?, active), featured = COALESCE(?, featured), fifa_featured = COALESCE(?, fifa_featured), customization_json = COALESCE(?, customization_json), product_json = COALESCE(?, product_json), updated_at = CURRENT_TIMESTAMP WHERE id = ?`)
-    .bind(product?.name.trim() ?? null, product ? Math.round(product.price * 100) : null, typeof (product?.active ?? body.active) === 'boolean' ? ((product?.active ?? body.active) ? 1 : 0) : null, typeof (product?.featured ?? body.featured) === 'boolean' ? ((product?.featured ?? body.featured) ? 1 : 0) : null, typeof (product?.fifa_featured ?? body.fifa_featured) === 'boolean' ? ((product?.fifa_featured ?? body.fifa_featured) ? 1 : 0) : null, fields === undefined ? null : JSON.stringify(fields), base === undefined ? null : JSON.stringify(base), productId).run();
+    .bind(product?.name.trim() ?? null, product ? Math.round(product.price * 100) : null, typeof (product?.active ?? body.active) === 'boolean' ? ((product?.active ?? body.active) ? 1 : 0) : null, typeof (product?.featured ?? body.featured) === 'boolean' ? ((product?.featured ?? body.featured) ? 1 : 0) : null, typeof (product?.campaign_featured ?? product?.fifa_featured ?? body.campaign_featured ?? body.fifa_featured) === 'boolean' ? ((product?.campaign_featured ?? product?.fifa_featured ?? body.campaign_featured ?? body.fifa_featured) ? 1 : 0) : null, fields === undefined ? null : JSON.stringify(fields), base === undefined ? null : JSON.stringify(base), productId).run();
   return json({ updated: true }, 200, origin);
 }
 
@@ -725,37 +726,37 @@ async function deleteAdminProduct(request: Request, env: Env, origin: string, pr
 async function publicCatalogue(env: Env, origin: string) {
   if (!env.DB) return json({ products: [] }, 503, origin);
   const rows = await env.DB.prepare('SELECT id, name, price_paise, active, featured, fifa_featured, display_order, product_json, customization_json FROM products WHERE product_json IS NOT NULL ORDER BY display_order, name').all<{ id: string; name: string; price_paise: number; active: number; featured: number; fifa_featured: number; display_order: number; product_json: string; customization_json: string | null }>();
-  const catalogue = rows.results.map(row => ({ ...(JSON.parse(row.product_json) as Product), id: row.id, name: row.name, price: row.price_paise / 100, active: Boolean(row.active), featured: Boolean(row.featured), fifa_featured: Boolean(row.fifa_featured), customizableProperties: row.customization_json == null ? [] : parseCustomizationFields(row.customization_json) }));
+  const catalogue = rows.results.map(row => ({ ...(JSON.parse(row.product_json) as Product), id: row.id, name: row.name, price: row.price_paise / 100, active: Boolean(row.active), featured: Boolean(row.featured), campaign_featured: Boolean(row.fifa_featured), customizableProperties: row.customization_json == null ? [] : parseCustomizationFields(row.customization_json) }));
   const response = json({ products: catalogue }, 200, origin);
   response.headers.set('Cache-Control', 'no-store');
   return response;
 }
 
-const defaultFifaCampaign: FifaCampaignConfig = {
+const defaultFeaturedCampaign: FeaturedCampaignConfig = {
   enabled: true,
-  headline: 'FIFA World Cup 2026',
-  description: 'Football-inspired prints for the road to 2026.',
-  largeDescription: 'A special football-inspired collection celebrating the road to FIFA World Cup 2026, featuring playful prints for fans, desks, keys, and match-day energy.',
+  headline: 'Featured collection',
+  description: 'Discover our current featured products.',
+  largeDescription: 'Explore a curated collection of featured prints and products.',
   accentColor: '#ffd07a',
   animationStyle: 'arrow',
 };
 
-async function fifaCampaignConfig(request: Request, env: Env, origin: string, admin = false) {
+async function featuredCampaignConfig(request: Request, env: Env, origin: string, admin = false) {
   if (!env.DB) return json({ error: 'Database is not configured.' }, 503, origin);
   if (admin && !await validAdminToken(request, env)) return json({ error: 'Admin login required.' }, 401, origin);
   if (request.method === 'GET') {
     const setting = await env.DB.prepare("SELECT value FROM commerce_settings WHERE key = 'fifa_campaign_config'").first<{ value: string }>();
-    return json(setting?.value ? JSON.parse(setting.value) : defaultFifaCampaign, 200, origin);
+    return json(setting?.value ? JSON.parse(setting.value) : defaultFeaturedCampaign, 200, origin);
   }
-  const body = await request.json() as Partial<FifaCampaignConfig>;
+  const body = await request.json() as Partial<FeaturedCampaignConfig>;
   const animationStyles = new Set(['none', 'shimmer', 'arrow', 'pulse']);
-  const config: FifaCampaignConfig = {
+  const config: FeaturedCampaignConfig = {
     enabled: body.enabled === true,
     headline: String(body.headline || '').trim().slice(0, 100),
     description: String(body.description || '').trim().slice(0, 240),
     largeDescription: String(body.largeDescription || '').trim().slice(0, 1000),
     accentColor: /^#[0-9a-f]{6}$/i.test(String(body.accentColor || '')) ? String(body.accentColor) : '#ffd07a',
-    animationStyle: animationStyles.has(String(body.animationStyle)) ? body.animationStyle as FifaCampaignConfig['animationStyle'] : 'none',
+    animationStyle: animationStyles.has(String(body.animationStyle)) ? body.animationStyle as FeaturedCampaignConfig['animationStyle'] : 'none',
   };
   if (!config.headline || !config.description) return json({ error: 'Headline and description are required.' }, 400, origin);
   await env.DB.prepare(`INSERT INTO commerce_settings (key, value, updated_at) VALUES ('fifa_campaign_config', ?, CURRENT_TIMESTAMP) ON CONFLICT(key) DO UPDATE SET value = excluded.value, updated_at = CURRENT_TIMESTAMP`).bind(JSON.stringify(config)).run();
@@ -765,7 +766,7 @@ async function fifaCampaignConfig(request: Request, env: Env, origin: string, ad
 async function publicAvailability(env: Env, origin: string) {
   if (!env.DB) return json({ products: {}, customization: {} }, 200, origin);
   const rows = await env.DB.prepare('SELECT id, price_paise, active, featured, fifa_featured, display_order, customization_json FROM products ORDER BY display_order, name').all<{ id: string; price_paise: number; active: number; featured: number; fifa_featured: number; display_order: number; customization_json: string | null }>();
-  return json({ products: Object.fromEntries(rows.results.map(row => [row.id, Boolean(row.active)])), prices: Object.fromEntries(rows.results.map(row => [row.id, row.price_paise / 100])), featured: Object.fromEntries(rows.results.map(row => [row.id, Boolean(row.featured)])), fifaFeatured: Object.fromEntries(rows.results.map(row => [row.id, Boolean(row.fifa_featured)])), order: rows.results.map(row => row.id), customization: Object.fromEntries(rows.results.filter(row => row.customization_json != null).map(row => [row.id, parseCustomizationFields(row.customization_json)])) }, 200, origin);
+  return json({ products: Object.fromEntries(rows.results.map(row => [row.id, Boolean(row.active)])), prices: Object.fromEntries(rows.results.map(row => [row.id, row.price_paise / 100])), featured: Object.fromEntries(rows.results.map(row => [row.id, Boolean(row.featured)])), campaignFeatured: Object.fromEntries(rows.results.map(row => [row.id, Boolean(row.fifa_featured)])), order: rows.results.map(row => row.id), customization: Object.fromEntries(rows.results.filter(row => row.customization_json != null).map(row => [row.id, parseCustomizationFields(row.customization_json)])) }, 200, origin);
 }
 
 async function setInventoryEnabled(request: Request, env: Env, origin: string) {
@@ -933,7 +934,7 @@ const worker = {
       if (path === '/admin/products' && ['GET', 'POST'].includes(request.method)) return await adminProducts(request, env, origin);
       if (path === '/admin/products/order' && request.method === 'PATCH') return await reorderAdminProducts(request, env, origin);
       if (path === '/admin/products/settings' && request.method === 'PATCH') return await saveAdminProductSettings(request, env, origin);
-      if (path === '/admin/featured-config' && ['GET', 'PATCH'].includes(request.method)) return await fifaCampaignConfig(request, env, origin, true);
+      if (path === '/admin/featured-config' && ['GET', 'PATCH'].includes(request.method)) return await featuredCampaignConfig(request, env, origin, true);
       if (path === '/admin/inventory' && request.method === 'PATCH') return await setInventoryEnabled(request, env, origin);
       const adminProductMatch = path.match(/^\/admin\/products\/([^/]+)$/);
       if (adminProductMatch && request.method === 'PATCH') return await updateAdminProduct(request, env, origin, decodeURIComponent(adminProductMatch[1]));
@@ -951,7 +952,7 @@ const worker = {
       if (path === '/track' && request.method === 'GET') return await trackOrder(request, env, origin);
       if (path === '/availability' && request.method === 'GET') return await publicAvailability(env, origin);
       if (path === '/catalogue' && request.method === 'GET') return await publicCatalogue(env, origin);
-      if (path === '/featured-config' && request.method === 'GET') return await fifaCampaignConfig(request, env, origin);
+      if (path === '/featured-config' && request.method === 'GET') return await featuredCampaignConfig(request, env, origin);
       if (path === '/create-order' && request.method === 'POST') return await createOrder(request, env, origin);
       if (path === '/checkout/order' && request.method === 'POST') return await createOrder(request, env, origin, true);
       if (path === '/verify-payment' && request.method === 'POST') return await verifyPayment(request, env, origin);

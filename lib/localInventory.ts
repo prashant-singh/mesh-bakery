@@ -5,6 +5,8 @@ export type LocalInventoryProduct = {
   price_paise: number;
   active: number;
   featured: number;
+  campaign_featured?: number;
+  /** Legacy key retained while existing browser data is migrated. */
   fifa_featured?: number;
   customizableProperties?: unknown[];
 };
@@ -24,7 +26,7 @@ export function localInventoryMaps() {
   return {
     prices: Object.fromEntries(items.map(item => [item.id, item.price_paise / 100])),
     featured: Object.fromEntries(items.map(item => [item.id, Boolean(item.featured)])),
-    fifaFeatured: Object.fromEntries(items.map(item => [item.id, Boolean(item.fifa_featured ?? item.featured)])),
+    campaignFeatured: Object.fromEntries(items.map(item => [item.id, Boolean(item.campaign_featured ?? item.fifa_featured ?? item.featured)])),
     availability: Object.fromEntries(items.map(item => [item.id, Boolean(item.active)])),
     order: items.map(item => item.id),
     customization: Object.fromEntries(items.map(item => [item.id, item.customizableProperties || []])),

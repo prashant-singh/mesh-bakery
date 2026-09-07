@@ -77,7 +77,8 @@ type InventoryProduct = {
   price_paise: number;
   active: number;
   featured: number;
-  fifa_featured: number;
+  campaign_featured: number;
+  fifa_featured?: number;
   customizableProperties: CustomField[];
   category: string;
   media: Array<{ type: "image" | "video"; url: string }>;
@@ -85,12 +86,12 @@ type InventoryProduct = {
   shortDescription: string;
   description: string;
 };
-const DEFAULT_FIFA_CONFIG: FeaturedConfig = {
+const DEFAULT_FEATURED_CONFIG: FeaturedConfig = {
   enabled: true,
-  headline: "FIFA World Cup 2026",
-  description: "Football-inspired prints for the road to 2026.",
+  headline: "Featured collection",
+  description: "Discover our current featured products.",
   largeDescription:
-    "A special football-inspired collection celebrating the road to FIFA World Cup 2026, featuring playful prints for fans, desks, keys, and match-day energy.",
+    "Explore a curated collection of featured prints and products.",
   accentColor: "#ffd07a",
   animationStyle: "arrow",
 };
@@ -570,8 +571,8 @@ export default function AdminPage() {
   const [inventoryPage, setInventoryPage] = React.useState(1);
   const [inventorySearch, setInventorySearch] = React.useState("");
   const [inventoryDirty, setInventoryDirty] = React.useState(false);
-  const [fifaConfig, setFifaConfig] = React.useState<FeaturedConfig | null>(null);
-  const [fifaBusy, setFifaBusy] = React.useState(false);
+  const [campaignConfig, setCampaignConfig] = React.useState<FeaturedConfig | null>(null);
+  const [campaignBusy, setCampaignBusy] = React.useState(false);
   const [editingPrices, setEditingPrices] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState("");
@@ -643,19 +644,20 @@ export default function AdminPage() {
       fetchCatalogue<
         Omit<
           InventoryProduct,
-          "price_paise" | "active" | "featured" | "fifa_featured"
+          "price_paise" | "active" | "featured" | "campaign_featured"
         > & {
           price: number;
           active?: boolean;
           featured?: boolean;
+          campaign_featured?: boolean;
           fifa_featured?: boolean;
         }
       >(),
       readLocalFeaturedConfig() ??
         (api("/admin/featured-config", { headers: auth() }) as Promise<FeaturedConfig>)
-          .catch(() => DEFAULT_FIFA_CONFIG),
+          .catch(() => DEFAULT_FEATURED_CONFIG),
     ]);
-    setFifaConfig(campaign);
+    setCampaignConfig(campaign);
     const remote = new Map(
       (data.products || []).map((product) => [product.id, product]),
     );
@@ -676,10 +678,12 @@ export default function AdminPage() {
             local.get(product.id)?.featured ??
             remote.get(product.id)?.featured ??
             (product.featured ? 1 : 0),
-          fifa_featured:
+          campaign_featured:
+            local.get(product.id)?.campaign_featured ??
             local.get(product.id)?.fifa_featured ??
+            remote.get(product.id)?.campaign_featured ??
             remote.get(product.id)?.fifa_featured ??
-            (product.fifa_featured ? 1 : 0),
+            ((product.campaign_featured ?? product.fifa_featured) ? 1 : 0),
           customizableProperties: (local.get(product.id)
             ?.customizableProperties ??
             remote.get(product.id)?.customizableProperties ??
@@ -695,8 +699,12 @@ export default function AdminPage() {
         price_paise: localProduct?.price_paise ?? product.price_paise,
         active: localProduct?.active ?? product.active,
         featured: localProduct?.featured ?? product.featured,
-        fifa_featured:
-          localProduct?.fifa_featured ?? product.fifa_featured ?? 0,
+        campaign_featured:
+          localProduct?.campaign_featured ??
+          localProduct?.fifa_featured ??
+          product.campaign_featured ??
+          product.fifa_featured ??
+          0,
         customizableProperties: (localProduct?.customizableProperties ??
           product.customizableProperties ?? []) as CustomField[],
       });
@@ -841,11 +849,11 @@ export default function AdminPage() {
     );
     setInventoryDirty(true);
   }
-  function saveFifaVisibility(product: InventoryProduct, fifaFeatured: boolean) {
+  function saveCampaignVisibility(product: InventoryProduct, campaignFeatured: boolean) {
     setInventory((value) =>
       value.map((item) =>
         item.id === product.id
-          ? { ...item, fifa_featured: fifaFeatured ? 1 : 0 }
+          ? { ...item, campaign_featured: campaignFeatured ? 1 : 0 }
           : item,
       ),
     );
@@ -900,24 +908,24 @@ export default function AdminPage() {
       setBusy(false);
     }
   }
-  async function updateFifaCampaign() {
-    if (!fifaConfig) return;
-    setFifaBusy(true);
+  async function updateFeaturedCampaign() {
+    if (!campaignConfig) return;
+    setCampaignBusy(true);
     setError("");
-    localStorage.setItem(LOCAL_FEATURED_CONFIG_KEY, JSON.stringify(fifaConfig));
+    localStorage.setItem(LOCAL_FEATURED_CONFIG_KEY, JSON.stringify(campaignConfig));
     try {
       const saved = (await api("/admin/featured-config", {
         method: "PATCH",
         headers: auth({ "Content-Type": "application/json" }),
-        body: JSON.stringify(fifaConfig),
+        body: JSON.stringify(campaignConfig),
       })) as FeaturedConfig;
-      setFifaConfig(saved);
+      setCampaignConfig(saved);
     } catch {
       setError(
-        "FIFA campaign saved for this local browser. Deploy the updated Worker to publish it for every visitor.",
+        "Featured campaign saved for this local browser. Deploy the updated Worker to publish it for every visitor.",
       );
     } finally {
-      setFifaBusy(false);
+      setCampaignBusy(false);
     }
   }
   function updatePrice(productId: string, pricePaise: number) {
@@ -938,7 +946,7 @@ export default function AdminPage() {
       price_paise: 100,
       active: 1,
       featured: 0,
-      fifa_featured: 0,
+      campaign_featured: 0,
       customizableProperties: [],
       category: "",
       media: [],
@@ -1330,21 +1338,21 @@ export default function AdminPage() {
                 </button>
               </div>
             </div>
-            {fifaConfig && (
+            {campaignConfig && (
               <div className="mb-5 rounded-2xl border bg-white p-4 sm:p-5">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h4 className="font-semibold">FIFA featured campaign</h4>
+                    <h4 className="font-semibold">Featured campaign</h4>
                     <p className="text-xs text-black/50">
-                      controls the FIFA banner and featured collection page
+                      controls the featured banner and collection page
                     </p>
                   </div>
                   <label className="flex items-center gap-2 text-xs font-bold">
                     <input
                       type="checkbox"
-                      checked={fifaConfig.enabled}
+                      checked={campaignConfig.enabled}
                       onChange={(event) =>
-                        setFifaConfig({ ...fifaConfig, enabled: event.target.checked })
+                        setCampaignConfig({ ...campaignConfig, enabled: event.target.checked })
                       }
                       className="h-5 w-5 accent-[#ff6b35]"
                     />
@@ -1355,16 +1363,16 @@ export default function AdminPage() {
                   <label className="text-xs font-bold">
                     Headline
                     <input
-                      value={fifaConfig.headline}
-                      onChange={(event) => setFifaConfig({ ...fifaConfig, headline: event.target.value })}
+                      value={campaignConfig.headline}
+                      onChange={(event) => setCampaignConfig({ ...campaignConfig, headline: event.target.value })}
                       className="mt-1 h-10 w-full rounded-lg border px-3 text-sm font-normal"
                     />
                   </label>
                   <label className="text-xs font-bold">
                     Short description
                     <input
-                      value={fifaConfig.description}
-                      onChange={(event) => setFifaConfig({ ...fifaConfig, description: event.target.value })}
+                      value={campaignConfig.description}
+                      onChange={(event) => setCampaignConfig({ ...campaignConfig, description: event.target.value })}
                       className="mt-1 h-10 w-full rounded-lg border px-3 text-sm font-normal"
                     />
                   </label>
@@ -1372,8 +1380,8 @@ export default function AdminPage() {
                     Collection page description
                     <textarea
                       rows={3}
-                      value={fifaConfig.largeDescription || ""}
-                      onChange={(event) => setFifaConfig({ ...fifaConfig, largeDescription: event.target.value })}
+                      value={campaignConfig.largeDescription || ""}
+                      onChange={(event) => setCampaignConfig({ ...campaignConfig, largeDescription: event.target.value })}
                       className="mt-1 w-full rounded-lg border px-3 py-2 text-sm font-normal"
                     />
                   </label>
@@ -1382,18 +1390,18 @@ export default function AdminPage() {
                     <div className="mt-1 flex h-10 items-center gap-2 rounded-lg border px-2">
                       <input
                         type="color"
-                        value={fifaConfig.accentColor || "#ffd07a"}
-                        onChange={(event) => setFifaConfig({ ...fifaConfig, accentColor: event.target.value })}
+                        value={campaignConfig.accentColor || "#ffd07a"}
+                        onChange={(event) => setCampaignConfig({ ...campaignConfig, accentColor: event.target.value })}
                         className="h-7 w-9 border-0 bg-transparent p-0"
                       />
-                      <span className="font-mono text-xs font-normal">{fifaConfig.accentColor}</span>
+                      <span className="font-mono text-xs font-normal">{campaignConfig.accentColor}</span>
                     </div>
                   </label>
                   <label className="text-xs font-bold">
                     Animation
                     <select
-                      value={fifaConfig.animationStyle}
-                      onChange={(event) => setFifaConfig({ ...fifaConfig, animationStyle: event.target.value as FeaturedConfig["animationStyle"] })}
+                      value={campaignConfig.animationStyle}
+                      onChange={(event) => setCampaignConfig({ ...campaignConfig, animationStyle: event.target.value as FeaturedConfig["animationStyle"] })}
                       className="mt-1 h-10 w-full rounded-lg border bg-white px-3 text-sm font-normal"
                     >
                       <option value="none">None</option>
@@ -1406,11 +1414,11 @@ export default function AdminPage() {
                 <div className="mt-4 flex justify-end">
                   <button
                     type="button"
-                    disabled={fifaBusy}
-                    onClick={updateFifaCampaign}
+                    disabled={campaignBusy}
+                    onClick={updateFeaturedCampaign}
                     className="rounded-full bg-[#5b6346] px-5 py-2.5 text-xs font-bold text-white disabled:opacity-50"
                   >
-                    {fifaBusy ? "saving…" : "update FIFA campaign"}
+                    {campaignBusy ? "saving…" : "update featured campaign"}
                   </button>
                 </div>
               </div>
@@ -1434,7 +1442,7 @@ export default function AdminPage() {
                 <span>fields</span>
                 <span>price</span>
                 <span>hero</span>
-                <span>FIFA</span>
+                <span>campaign</span>
                 <span>availability</span>
                 <span>actions</span>
               </div>
@@ -1494,20 +1502,6 @@ export default function AdminPage() {
                     </label>
                     <label className="flex items-center gap-2 text-xs font-bold">
                       <input
-                        aria-label={`FIFA collection visibility for ${product.name}`}
-                        type="checkbox"
-                        checked={Boolean(product.fifa_featured)}
-                        onChange={(e) =>
-                          saveFifaVisibility(product, e.target.checked)
-                        }
-                        className="h-5 w-5 accent-[#2563eb]"
-                      />
-                      <span className="xl:hidden">
-                        FIFA: {product.fifa_featured ? "shown" : "hidden"}
-                      </span>
-                    </label>
-                    <label className="flex items-center gap-2 text-xs font-bold">
-                      <input
                         aria-label={`hero visibility for ${product.name}`}
                         type="checkbox"
                         checked={Boolean(product.featured)}
@@ -1516,7 +1510,23 @@ export default function AdminPage() {
                         }
                         className="h-5 w-5 accent-[#ff6b35]"
                       />
-                      <span>{product.featured ? "shown" : "hidden"}</span>
+                      <span className="xl:hidden">
+                        Hero: {product.featured ? "shown" : "hidden"}
+                      </span>
+                    </label>
+                    <label className="flex items-center gap-2 text-xs font-bold">
+                      <input
+                        aria-label={`campaign visibility for ${product.name}`}
+                        type="checkbox"
+                        checked={Boolean(product.campaign_featured)}
+                        onChange={(e) =>
+                          saveCampaignVisibility(product, e.target.checked)
+                        }
+                        className="h-5 w-5 accent-[#2563eb]"
+                      />
+                      <span className="xl:hidden">
+                        Campaign: {product.campaign_featured ? "shown" : "hidden"}
+                      </span>
                     </label>
                     <label className="flex items-center gap-2 text-xs font-bold">
                       <input

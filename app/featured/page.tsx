@@ -49,6 +49,7 @@ type Product = {
   shortDescription: string;
   description: string;
   featured?: boolean;
+  campaign_featured?: boolean;
   fifa_featured?: boolean;
   customizableProperties?: CustomizableProperty[];
   active?: boolean;
@@ -130,7 +131,7 @@ export default function FeaturedPage() {
       const local = localInventoryMaps();
       setAvailability(local.availability);
       setCustomizationOverrides(local.customization as Record<string, CustomizableProperty[]>);
-      setFeaturedVisibility(local.fifaFeatured);
+      setFeaturedVisibility(local.campaignFeatured);
       setProductOrder(local.order);
       setProductPrices(local.prices);
     };
@@ -140,7 +141,7 @@ export default function FeaturedPage() {
         setCatalogue(products);
         setAvailability({ ...Object.fromEntries(products.map(product => [product.id, product.active !== false])), ...local.availability });
         setCustomizationOverrides({ ...Object.fromEntries(products.map(product => [product.id, product.customizableProperties || []])), ...local.customization } as Record<string, CustomizableProperty[]>);
-        setFeaturedVisibility({ ...Object.fromEntries(products.map(product => [product.id, product.fifa_featured === true])), ...local.fifaFeatured });
+        setFeaturedVisibility({ ...Object.fromEntries(products.map(product => [product.id, (product.campaign_featured ?? product.fifa_featured) === true])), ...local.campaignFeatured });
         setProductOrder(local.order.length ? local.order : products.map(product => product.id));
         setProductPrices({ ...Object.fromEntries(products.map(product => [product.id, product.price])), ...local.prices });
       })
